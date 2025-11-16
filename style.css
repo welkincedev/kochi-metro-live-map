@@ -1,4 +1,7 @@
-/* GENERAL */
+/* ============================================
+   GENERAL
+============================================ */
+
 body {
     margin: 0;
     padding: 0;
@@ -8,16 +11,62 @@ body {
     overflow-x: hidden;
 }
 
-/* HEADER */
+/* ============================================
+   HEADER (Kochi Metro Style)
+============================================ */
+
 #header {
-    text-align: center;
-    padding: 15px;
-    font-size: 20px;
     background: #111418;
     border-bottom: 1px solid #1c1f22;
+    padding: 14px 0;
+    position: relative;
 }
 
-/* BOARD */
+/* Aqua Metro Underline */
+#header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 65%;
+    height: 3px;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #00e1ff, #00ff99);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
+}
+
+/* Header flex container */
+#header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Kochi Metro Logo */
+#metro-logo {
+    height: 34px;
+    filter: drop-shadow(0 0 2px #00ffe1);
+}
+
+/* Gradient Title */
+#header-title {
+    font-size: 20px;
+    letter-spacing: 1px;
+    font-weight: 600;
+
+    background: linear-gradient(90deg, #00e1ff, #00ff99);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ============================================
+   BOARD
+============================================ */
+
 #board {
     position: relative;
     width: 100%;
@@ -25,10 +74,13 @@ body {
     margin: 20px auto;
 }
 
-/* TRACK LINES — placed behind capsules */
+/* ============================================
+   TRACK LINES (Behind Capsules)
+============================================ */
+
 .track {
     position: absolute;
-    top: 25px;          /* moves track under LED circles */
+    top: 25px; 
     bottom: 0;
     width: 4px;
     background: #3aa63f;
@@ -36,17 +88,20 @@ body {
     z-index: 1;
 }
 
-/* DOWN track = LEFT */
+/* DOWN track = LEFT side */
 .track-down {
     left: calc(50% - 155px);
 }
 
-/* UP track = RIGHT */
+/* UP track = RIGHT side */
 .track-up {
     left: calc(50% + 155px);
 }
 
-/* STATION LIST */
+/* ============================================
+   STATION LIST
+============================================ */
+
 #station-list {
     display: flex;
     flex-direction: column;
@@ -55,13 +110,13 @@ body {
     z-index: 5;
 }
 
-/* STATION ROW */
+/* Station container */
 .station {
     position: relative;
     text-align: center;
 }
 
-/* WHITE CAPSULE */
+/* Station pill capsule */
 .station-capsule {
     width: 75%;
     background: white;
@@ -76,13 +131,13 @@ body {
     z-index: 10;
 }
 
-/* NAME */
+/* Station name */
 .station-name {
     font-size: 16px;
     font-weight: 600;
 }
 
-/* LED CIRCLES */
+/* LED Indicators */
 .led {
     width: 18px;
     height: 18px;
@@ -96,7 +151,10 @@ body {
     box-shadow: 0 0 6px #3aa63f;
 }
 
-/* TRAIN DOT — NOW ALIGNED UNDER CAPSULE */
+/* ============================================
+   TRAIN DOT (MOVING)
+============================================ */
+
 .train-dot {
     width: 20px;
     height: 20px;
@@ -105,7 +163,7 @@ body {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    margin-top: 22px;  /* keeps dot under the LED */
+    margin-top: 22px;
     box-shadow: 0 0 10px cyan;
     display: flex;
     justify-content: center;
@@ -117,103 +175,9 @@ body {
     font-size: 12px;
 }
 
-/* MOBILE FIXES */
-@media (max-width: 500px) {
-    .station-capsule {
-        width: 90%;
-    }
-
-    .track-down {
-        left: calc(50% - 135px);
-    }
-
-    .track-up {
-        left: calc(50% + 135px);
-    }
-}
-
-/* ===========================
-   HEADER (Metro Style)
-=========================== */
-
-#header {
-    background: #111418;
-    border-bottom: 1px solid #1c1f22;
-    padding: 14px 0;
-    position: relative;
-}
-
-/* UNDERLINE AQUA GREEN */
-#header::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 65%;
-    height: 3px;
-    transform: translateX(-50%);
-    
-    background: linear-gradient(90deg, #00e1ff, #00ff99);
-    border-radius: 2px;
-    box-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
-}
-
-/* FLEX WRAPPER */
-#header-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;           /* space between logo + text */
-}
-
-/* LOGO */
-#metro-logo {
-    height: 34px;
-    filter: drop-shadow(0 0 2px #00ffe1);
-}
-
-/* TITLE TEXT */
-#header-title {
-    font-size: 20px;
-    letter-spacing: 1px;
-    font-weight: 600;
-
-    /* Gradient Text */
-    background: linear-gradient(90deg, #00e1ff, #00ff99);
-
-    /* Standard property */
-    background-clip: text;
-
-    /* Required for Chrome, Safari, iOS */
-    -webkit-background-clip: text;
-
-    /* Makes gradient visible (non-deprecated) */
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-}
-
-
-/* MOBILE RESPONSIVE */
-@media (max-width: 400px) {
-    #header {
-        padding: 10px 0;
-    }
-    #header-title {
-        font-size: 17px;
-    }
-    #metro-logo {
-        height: 28px;
-    }
-    #header::after {
-        width: 75%;
-    }
-}
-
-
-/* ===========================
-   CREDITS FOOTER
-   (Improved + Mobile Optimized)
-=========================== */
+/* ============================================
+   FOOTER CREDITS (Modern + Responsive)
+============================================ */
 
 #credits {
     text-align: center;
@@ -221,11 +185,8 @@ body {
     font-size: 12px;
     color: #aaaaaa;
     margin-top: 30px;
-
     border-top: 1px solid #1c1f22;
     background: #0d0f11;
-
-    /* Mobile-safe spacing */
     line-height: 1.5;
 }
 
@@ -241,12 +202,69 @@ body {
     opacity: 0.9;
 }
 
-/* Ultra-small screen optimizations */
-@media (max-width: 400px) {
+/* ============================================
+   MOBILE RESPONSIVE FIXES
+============================================ */
+
+@media (max-width: 500px) {
+
+    /* Header */
+    #header {
+        padding: 10px 0;
+    }
+
+    #header-content {
+        gap: 8px;
+    }
+
+    #metro-logo {
+        height: 22px;   /* Smaller mobile logo */
+    }
+
+    #header-title {
+        font-size: 15.5px;
+        letter-spacing: 0.5px;
+    }
+
+    #header::after {
+        width: 70%;
+    }
+
+    /* Stations */
+    .station-capsule {
+        width: 90%;
+    }
+
+    /* Track alignment tighter on mobile */
+    .track-down {
+        left: calc(50% - 135px);
+    }
+
+    .track-up {
+        left: calc(50% + 135px);
+    }
+
+    /* Footer compressed */
     #credits {
-        font-size: 11px;
-        padding: 12px;
-        margin-top: 20px;
-        line-height: 1.4;
+        font-size: 10.5px;
+        padding: 10px 6px;
+        margin-top: 18px;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    #metro-logo {
+        height: 20px;
+    }
+    #header-title {
+        font-size: 14px;
+    }
+    #header::after {
+        width: 80%;
     }
 }
