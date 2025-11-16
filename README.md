@@ -155,6 +155,5 @@ All code, graphics, and animations created by me.
 
 ## 📬 Contact
 
-**GitHub:** (your profile link)  
-**LinkedIn:** (your LinkedIn link)  
-**Instagram:** (optional)
+**GitHub:** [(welkincedev)  ](https://github.com/welkincedev)
+**LinkedIn:** ([Welkince Clair](https://www.linkedin.com/in/welkince-clair-a58a772b1?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app))  
