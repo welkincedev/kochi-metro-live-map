@@ -10,7 +10,7 @@ fetch("schedule.json")
         trips = data.trips;
 
         buildStationUI();
-        setInterval(updateTrains, 1000);
+        setInterval(updateTrains, 500);
     });
 
 /* ------------------------------
@@ -39,6 +39,34 @@ function buildStationUI() {
     });
 }
 
+// Find next upcoming train from timetable
+function getNextTrainCountdown(now) {
+    let soonest = Infinity;
+    let direction = "";
+    
+    for (let tripName in trips) {
+        const trip = trips[tripName];
+        const firstStop = trip[0];   // first stop (direction anchor)
+        const startTime = firstStop.departure_s;
+
+        if (startTime > now && startTime - now < soonest) {
+            soonest = startTime - now;
+            direction = firstStop.stop_id === "aluva" ? "UP" : "DOWN";
+        }
+    }
+
+    return { soonest, direction };
+}
+
+
+// Convert seconds → "Xm Ys"
+function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}m ${s}s`;
+}
+
+
 /* ------------------------------
    UPDATE TRAINS
 --------------------------------*/
@@ -51,6 +79,7 @@ function updateTrains() {
     for (let tripName in trips) {
         animateTrip(trips[tripName], now);
     }
+
 }
 
 function getSeconds() {
