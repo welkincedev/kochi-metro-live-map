@@ -1,0 +1,133 @@
+/* GENERAL */
+body {
+    margin: 0;
+    padding: 0;
+    background: #0d0f11;
+    color: white;
+    font-family: "Inter", sans-serif;
+    overflow-x: hidden;
+}
+
+/* HEADER */
+#header {
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+    background: #111418;
+    border-bottom: 1px solid #1c1f22;
+}
+
+/* BOARD */
+#board {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+/* TRACK LINES — placed behind capsules */
+.track {
+    position: absolute;
+    top: 25px;          /* moves track under LED circles */
+    bottom: 0;
+    width: 4px;
+    background: #3aa63f;
+    border-radius: 3px;
+    z-index: 1;
+}
+
+/* DOWN track = LEFT */
+.track-down {
+    left: calc(50% - 155px);
+}
+
+/* UP track = RIGHT */
+.track-up {
+    left: calc(50% + 155px);
+}
+
+/* STATION LIST */
+#station-list {
+    display: flex;
+    flex-direction: column;
+    gap: 45px;
+    position: relative;
+    z-index: 5;
+}
+
+/* STATION ROW */
+.station {
+    position: relative;
+    text-align: center;
+}
+
+/* WHITE CAPSULE */
+.station-capsule {
+    width: 75%;
+    background: white;
+    border: 1px solid #dfe1e3;
+    border-radius: 24px;
+    padding: 10px 16px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: black;
+    z-index: 10;
+}
+
+/* NAME */
+.station-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* LED CIRCLES */
+.led {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #3aa63f;
+}
+
+.led.active {
+    background: #3aa63f;
+    box-shadow: 0 0 6px #3aa63f;
+}
+
+/* TRAIN DOT — NOW ALIGNED UNDER CAPSULE */
+.train-dot {
+    width: 20px;
+    height: 20px;
+    background: cyan;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 22px;  /* keeps dot under the LED */
+    box-shadow: 0 0 10px cyan;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+}
+
+.train-icon {
+    font-size: 12px;
+}
+
+/* MOBILE FIXES */
+@media (max-width: 500px) {
+    .station-capsule {
+        width: 90%;
+    }
+
+    .track-down {
+        left: calc(50% - 135px);
+    }
+
+    .track-up {
+        left: calc(50% + 135px);
+    }
+}
