@@ -4,6 +4,10 @@ Inspired by MetroBoard (Instagram) — recreated from scratch with clean animati
 
 ---
 
+KM Live Map: https://welkincedev.github.io/kochi-metro-live-map/
+
+---
+
 ## 📱 Overview
 
 **Kochi Metro Live Board** is a fully animated, web-based metro information display that visualizes real-time train movement between all 24 Kochi Metro stations.
@@ -111,8 +115,7 @@ Handles:
 
 ---
 
-## 📸 Screenshots  
-(Add your own UI screenshots here after deploying)
+## 📸 Screenshots  
 
 ---
 
