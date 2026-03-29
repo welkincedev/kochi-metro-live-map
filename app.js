@@ -23,7 +23,6 @@ class MetroBoard {
         };
 
         this.state = {
-            activeTripIds: new Set(),
             selectedStation: null,
             nowSec: 0,
             serviceIds: [] // Currently valid services (WK/WE)
@@ -43,9 +42,10 @@ class MetroBoard {
                 fareBox: document.getElementById('fare-result'),
                 stationHUD: {
                     name: document.getElementById('hud-station-name'),
-                    north: document.getElementById('north-deps'),
-                    south: document.getElementById('south-deps')
-                }
+                    dir0: document.getElementById('dir0-deps'),
+                    dir1: document.getElementById('dir1-deps')
+                },
+                swapBtn: document.getElementById('swap-btn')
             }
         };
 
@@ -163,6 +163,25 @@ class MetroBoard {
 
         this.ui.elements.originSelect.addEventListener('change', () => this.calculateFare());
         this.ui.elements.destSelect.addEventListener('change', () => this.calculateFare());
+        
+        if (this.ui.elements.swapBtn) {
+            this.ui.elements.swapBtn.addEventListener('click', () => this.swapStations());
+        }
+    }
+
+    swapStations() {
+        const s1 = this.ui.elements.originSelect;
+        const s2 = this.ui.elements.destSelect;
+        const tmp = s1.value;
+        s1.value = s2.value;
+        s2.value = tmp;
+        
+        // Animation
+        const btn = this.ui.elements.swapBtn;
+        btn.classList.add('rotating');
+        setTimeout(() => btn.classList.remove('rotating'), 400);
+
+        this.calculateFare();
     }
 
     getNowSeconds() {
@@ -362,7 +381,7 @@ class MetroBoard {
         const s = this.data.stations[sid];
         this.ui.elements.stationHUD.name.textContent = s.name;
         
-        const deps = { n: [], s: [] };
+        const deps = [ [], [] ]; // index 0 and 1
         for (const tid in this.data.trips) {
             const trip = this.data.trips[tid];
             if (!this.state.serviceIds.includes(trip.metadata.service_id)) continue;
@@ -370,16 +389,15 @@ class MetroBoard {
             const stop = trip.stops.find(st => st.stop_id === sid);
             if (stop && stop.dep > this.state.nowSec) {
                 const item = { time: stop.dep, id: tid };
-                if (trip.metadata.direction === 0) deps.n.push(item);
-                else deps.s.push(item);
+                deps[trip.metadata.direction].push(item);
             }
         }
 
         const fmt = (sec) => `${Math.floor(sec/3600)}:${Math.floor((sec%3600)/60).toString().padStart(2,'0')}`;
         const renderList = (arr) => arr.sort((a,b)=>a.time-b.time).slice(0,3).map(d => `<div class="dep-item"><span>TRN ${d.id.split('_')[1]}</span><span>${fmt(d.time)}</span></div>`).join('') || '<div class="dep-item">No Services</div>';
 
-        this.ui.elements.stationHUD.north.innerHTML = renderList(deps.n);
-        this.ui.elements.stationHUD.south.innerHTML = renderList(deps.s);
+        this.ui.elements.stationHUD.dir0.innerHTML = renderList(deps[0]);
+        this.ui.elements.stationHUD.dir1.innerHTML = renderList(deps[1]);
     }
 }
 

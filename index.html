@@ -74,7 +74,7 @@
                 <h3><span class="icon">💰</span> Fare Calculator</h3>
                 <div class="input-group">
                     <select id="origin-select"><option value="">Select Origin</option></select>
-                    <div class="swap-btn">⇅</div>
+                    <div class="swap-btn" id="swap-btn">⇅</div>
                     <select id="dest-select"><option value="">Select Destination</option></select>
                 </div>
                 <div id="fare-result" class="hidden">
@@ -88,10 +88,10 @@
                 <h3 id="hud-station-name">Station HUD</h3>
                 <div class="departure-groups">
                     <div class="dep-group">
-                        <div class="dep-list" id="north-deps"></div>
+                        <div class="dep-list" id="dir0-deps"></div>
                     </div>
                     <div class="dep-group">
-                        <div class="dep-list" id="south-deps"></div>
+                        <div class="dep-list" id="dir1-deps"></div>
                     </div>
                 </div>
             </section>

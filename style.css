@@ -121,8 +121,21 @@ select {
     border: 1px solid var(--border-glass);
     font-family: var(--font-mono); font-size: 11px;
 }
-#north-deps .dep-item { border-left: 3px solid var(--accent-lime); color: var(--accent-lime); }
-#south-deps .dep-item { border-left: 3px solid var(--accent-cyan); color: var(--accent-cyan); }
+#dir0-deps .dep-item { border-left: 3px solid var(--accent-lime); color: var(--accent-lime); }
+#dir1-deps .dep-item { border-left: 3px solid var(--accent-cyan); color: var(--accent-cyan); }
+
+/* Swap Button */
+.swap-btn {
+    font-size: 24px;
+    color: var(--accent-cyan);
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s;
+    user-select: none;
+    padding: 5px;
+}
+.swap-btn:hover { filter: brightness(1.2) drop-shadow(0 0 10px var(--accent-cyan)); transform: scale(1.2); }
+.swap-btn:active { transform: scale(0.9) rotate(180deg); transition: transform 0.1s; }
+.swap-btn.rotating { transform: rotate(180deg); }
 
 /* Booking Btn */
 .book-btn {
