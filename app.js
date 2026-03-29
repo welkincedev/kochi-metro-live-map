@@ -18,7 +18,8 @@ class MetroBoard {
             trips: {},
             shapes: {},
             fares: {},
-            calendar: {}
+            calendar: {},
+            stationOrder: [] // Sorted sequence for Line View
         };
 
         this.state = {
@@ -128,8 +129,10 @@ class MetroBoard {
 
     renderLineView() {
         const list = document.getElementById('station-list');
-        // Sort stations from Aluva to TPHT (Legacy logic)
-        const sorted = Object.values(this.data.stations).sort((a,b) => a.lat > b.lat ? -1 : 1); 
+        // Sort stations from Aluva to TPHT (North to South)
+        const sorted = Object.values(this.data.stations).sort((a,b) => b.lat - a.lat); 
+        this.data.stationOrder = sorted.map(s => s.id);
+
         list.innerHTML = sorted.map(s => `
             <div class="line-station" onclick="board.updateStationHUD('${s.id}')">
                 <div class="station-dot"></div>
@@ -202,7 +205,11 @@ class MetroBoard {
         // Cleanup Inactive
         for (const tid in this.ui.activeTrains) {
             if (!activeIds.has(tid)) {
-                this.ui.activeTrains[tid].remove();
+                // Map Cleanup
+                if (this.ui.activeTrains[tid].mapMarker) this.ui.activeTrains[tid].mapMarker.remove();
+                // Line Cleanup
+                if (this.ui.activeTrains[tid].lineMarker) this.ui.activeTrains[tid].lineMarker.remove();
+                
                 delete this.ui.activeTrains[tid];
             }
         }
@@ -221,25 +228,31 @@ class MetroBoard {
                 const s = this.data.stations[stop.stop_id];
                 pos = [s.lat, s.lon];
                 state = 'at-station';
-                break;
+                this.renderTrain(tid, pos, trip.metadata.direction, state, {
+                    s1: stop.stop_id,
+                    s2: stop.stop_id,
+                    ratio: 0
+                });
+                return;
             }
         }
 
         // 2. Shape-based Transit Interpolation
-        if (!pos) {
-            for (let i=0; i < trip.stops.length-1; i++) {
-                const s1 = trip.stops[i];
-                const s2 = trip.stops[i+1];
-                
-                if (this.state.nowSec > s1.dep && this.state.nowSec < s2.arr) {
-                    const ratio = (this.state.nowSec - s1.dep) / (s2.arr - s1.dep);
-                    pos = this.interpolateAlongShape(trip.metadata.shape_id, s1.stop_id, s2.stop_id, ratio);
-                    break;
-                }
+        for (let i=0; i < trip.stops.length-1; i++) {
+            const s1 = trip.stops[i];
+            const s2 = trip.stops[i+1];
+            
+            if (this.state.nowSec > s1.dep && this.state.nowSec < s2.arr) {
+                const ratio = (this.state.nowSec - s1.dep) / (s2.arr - s1.dep);
+                pos = this.interpolateAlongShape(trip.metadata.shape_id, s1.stop_id, s2.stop_id, ratio);
+                this.renderTrain(tid, pos, trip.metadata.direction, 'moving', {
+                    s1: s1.stop_id,
+                    s2: s2.stop_id,
+                    ratio: ratio
+                });
+                break;
             }
         }
-
-        if (pos) this.renderTrain(tid, pos, trip.metadata.direction, state);
     }
 
     interpolateAlongShape(shapeId, fromId, toId, ratio) {
@@ -284,23 +297,55 @@ class MetroBoard {
         ];
     }
 
-    renderTrain(tid, pos, dir, state) {
+    renderTrain(tid, pos, dir, state, lineData) {
         if (!this.ui.activeTrains[tid]) {
-            this.ui.activeTrains[tid] = L.circleMarker(pos, {
-                radius: 6,
-                fillColor: dir === 0 ? 'var(--accent-lime)' : 'var(--accent-cyan)',
-                fillOpacity: 1,
-                color: 'white',
-                weight: 2,
-                className: 'train-marker'
-            }).addTo(this.ui.map);
+            this.ui.activeTrains[tid] = {
+                mapMarker: L.circleMarker(pos, {
+                    radius: 6,
+                    fillColor: dir === 0 ? 'var(--accent-lime)' : 'var(--accent-cyan)',
+                    fillOpacity: 1,
+                    color: 'white',
+                    weight: 2,
+                    className: 'train-marker'
+                }).addTo(this.ui.map),
+                lineMarker: this.createLineMarker(tid, dir)
+            };
         } else {
-            this.ui.activeTrains[tid].setLatLng(pos);
-            this.ui.activeTrains[tid].setStyle({
+            // Update Map
+            this.ui.activeTrains[tid].mapMarker.setLatLng(pos);
+            this.ui.activeTrains[tid].mapMarker.setStyle({
                 radius: state === 'at-station' ? 9 : 6,
                 fillOpacity: state === 'at-station' ? 0.8 : 1
             });
+            
+            // Update Line View Position
+            this.updateLineMarkerPos(tid, lineData);
         }
+    }
+
+    createLineMarker(tid, dir) {
+        const el = document.createElement('div');
+        el.className = `train-marker-line ${dir === 0 ? 'north' : 'south'}`;
+        el.id = `line-train-${tid}`;
+        el.innerHTML = tid.split('_')[1] || 'M';
+        document.getElementById('train-layer-line').appendChild(el);
+        return el;
+    }
+
+    updateLineMarkerPos(tid, lineData) {
+        const marker = this.ui.activeTrains[tid].lineMarker;
+        if (!marker || !lineData) return;
+
+        const idx1 = this.data.stationOrder.indexOf(lineData.s1);
+        const idx2 = this.data.stationOrder.indexOf(lineData.s2);
+
+        if (idx1 === -1 || idx2 === -1) return;
+
+        const interpolatedIdx = idx1 + (idx2 - idx1) * lineData.ratio;
+        const xBase = interpolatedIdx * 250 + 125;
+        
+        marker.style.left = `${xBase}px`;
+        marker.style.opacity = '1';
     }
 
     calculateFare() {

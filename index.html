@@ -22,9 +22,13 @@
         <!-- Header HUD -->
         <header id="main-header">
             <div class="header-left">
-                <img src="https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png" alt="KMRL" id="metro-logo">
+                <div id="logo-container">
+                    <img src="https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png" 
+                         alt="KMRL" id="metro-logo" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block'">
+                    <span id="logo-fallback" style="display:none; font-weight:800; font-size:20px; color:var(--accent-cyan);">KOCHI METRO</span>
+                </div>
                 <div class="header-text">
-                    <h1>Network Operations</h1>
+                    <h1>Live Metro Map</h1>
                     <div id="status-bar">
                         <span class="status-dot pulse"></span>
                         <span id="network-status">SYSTEM ONLINE</span>
@@ -51,12 +55,13 @@
                 <div id="leaflet-map"></div>
             </div>
 
-            <!-- Horizontal Line View (Legacy) -->
+            <!-- Horizontal Line View -->
             <div id="line-view" class="view-cell">
                 <div id="board-overflow-container">
                     <div id="board">
                         <div class="track"></div>
                         <div id="station-list"></div>
+                        <div id="train-layer-line"></div>
                     </div>
                 </div>
             </div>
@@ -82,12 +87,10 @@
             <section class="ops-card" id="station-hud">
                 <h3 id="hud-station-name">Station HUD</h3>
                 <div class="departure-groups">
-                    <div class="dep-group northbound">
-                        <div class="group-header">← North (Aluva)</div>
+                    <div class="dep-group">
                         <div class="dep-list" id="north-deps"></div>
                     </div>
-                    <div class="dep-group southbound">
-                        <div class="group-header">South (Tripunithura) →</div>
+                    <div class="dep-group">
                         <div class="dep-list" id="south-deps"></div>
                     </div>
                 </div>
@@ -95,10 +98,10 @@
 
             <!-- External Links -->
             <section class="ops-card" id="external-actions">
-                <a href="https://kochimetro.org/ticketing/" target="_blank" class="book-btn">
-                    <span class="icon">🎟</span> BOOK TICKET
+                <a href="https://wa.me/9188957488?text=Hi%2C%20I%20want%20to%20book%20a%20Kochi%20Metro%20ticket" target="_blank" class="book-btn">
+                    <span class="icon">📱</span> BOOK TICKET
                 </a>
-                <p class="small-disclaimer">Official Kochi Metro Ticket System</p>
+                <p class="small-disclaimer">Official WhatsApp Ticketing Integration</p>
             </section>
         </aside>
     </div>

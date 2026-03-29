@@ -114,15 +114,15 @@ select {
 .travel-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
 
 /* Station HUD */
-.group-header { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); margin: 10px 0 8px 0; opacity: 0.8; }
-.dep-list { display: flex; flex-direction: column; gap: 5px; }
+.dep-list { display: flex; flex-direction: column; gap: 8px; }
 .dep-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 12px; border-radius: 8px; background: rgba(0,0,0,0.2);
+    padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-glass);
     font-family: var(--font-mono); font-size: 11px;
 }
-.north-deps .dep-item { border-left: 3px solid var(--accent-lime); color: var(--accent-lime); }
-.south-deps .dep-item { border-left: 3px solid var(--accent-cyan); color: var(--accent-cyan); }
+#north-deps .dep-item { border-left: 3px solid var(--accent-lime); color: var(--accent-lime); }
+#south-deps .dep-item { border-left: 3px solid var(--accent-cyan); color: var(--accent-cyan); }
 
 /* Booking Btn */
 .book-btn {
@@ -189,9 +189,31 @@ select {
 }
 
 #line-view.active .track {
-    position: absolute; top: 50%; left: 0; right: 0; height: 3px;
-    background: rgba(255,255,255,0.05); transform: translateY(-50%);
+    position: absolute; top: 50%; left: 0; right: 0; height: 4px;
+    background: rgba(255,255,255,0.08); transform: translateY(-50%);
+    border-radius: 2px;
 }
+
+#train-layer-line {
+    position: absolute; top: 50%; left: 0; right: 0; height: 0;
+    pointer-events: none;
+}
+
+.train-marker-line {
+    position: absolute;
+    width: 24px; height: 24px;
+    background: white;
+    border-radius: 6px;
+    transform: translate(-12px, -12px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: black;
+    box-shadow: 0 0 15px rgba(255,255,255,0.4);
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+}
+
+.train-marker-line.north { background: var(--accent-lime); box-shadow: 0 0 15px var(--accent-lime); }
+.train-marker-line.south { background: var(--accent-cyan); box-shadow: 0 0 15px var(--accent-cyan); }
 
 /* Marker Animation */
 .train-marker { filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
