@@ -1,162 +1,197 @@
-# 🚇 Kochi Metro Live Board  
-A real-time metro tracking UI with animated train movement, station LEDs, and dynamic timetable logic.  
-Inspired by MetroBoard (Instagram) — recreated from scratch with clean animations, modern UI, and real Kochi Metro timings.
+# 🚇 Kochi Metro Geo-Live Operations Display
+
+A high-fidelity, data-driven metro visualization system that transforms official GTFS data into a **real-time, geographically accurate transit operations dashboard**.
 
 ---
 
-KM Live Map: https://welkincedev.github.io/kochi-metro-live-map/
+## 🌍 Overview
+
+This project recreates the Kochi Metro network as a **live operational display**, combining real timetable data with geographic mapping to simulate actual train movement across the city.
+
+It is designed to feel like a **control-room interface**, prioritizing accuracy, clarity, and performance over decorative simulation.
 
 ---
 
-## 📱 Overview
+## 🧠 Data Engine
 
-**Kochi Metro Live Board** is a fully animated, web-based metro information display that visualizes real-time train movement between all 24 Kochi Metro stations.
+* **GTFS-Based Architecture**
+  Built on official transit datasets including stops, trips, stop_times, shapes, and fare data.
 
-It includes:
+* **Preprocessing Pipeline**
+  A custom script (`preprocess.js`) converts raw GTFS CSV files into optimized JSON for fast client-side rendering.
 
-- 🟦 Real-time animated train movement  
-- 🟩 Separate UP (right) and DOWN (left) track lines  
-- 🔵 Smooth cyan train-dot animation  
-- 🟢 LED glow for active stations  
-- ⚪ Real metro-style capsules  
-- 📄 Timetable converted from Kochi Metro's official timings  
-- 🌙 Designed for mobile-first usage  
-- 🎨 Metro-inspired UI design from scratch  
+* **Service-Aware Logic**
+  Automatically detects weekday/weekend schedules and filters trips accordingly.
 
-This project is designed to feel like a **live metro operations screen**, built entirely in HTML, CSS, and JavaScript.
+* **Time Normalization**
+  Converts timetable data into seconds (`arrival_s`, `departure_s`) for precise calculations.
 
 ---
 
-## 🤝 Contributing
+## 🗺️ Geo-Live Map
 
-Suggestions, feature ideas, and improvements are welcome.  
-You can open an Issue or PR directly in this repository.
+* **Geographic Accuracy**
+  Uses real latitude/longitude coordinates and track geometry to match Kochi’s metro alignment.
 
----
+* **Leaflet Integration**
+  Interactive dark-mode map with station markers and glowing track paths.
 
-## ⭐ Support
+* **Real-Time Train Movement**
 
-If you found this project interesting or useful, please consider giving it a **⭐ star**.  
-It helps the project grow and motivates further improvements.
-
----
-
-## 🎯 Purpose
-
-This project demonstrates:
-
-- Real-time animation  
-- Front-end UI engineering  
-- Timetable-based data modeling  
-- CSS metro-style layout building  
-- Smooth DOM interpolation  
-- Clean and responsive design  
-- A complete “product-like” implementation  
+  * Smooth 60fps interpolation using `requestAnimationFrame`
+  * Trains follow real curved paths from GTFS `shapes.txt`
 
 ---
 
-## 🎨 Inspiration
+## 🚆 Train State System
 
-Inspired by:
+Each train behaves based on real timetable logic:
 
-- **MetroBoard (Instagram)** → for the visual concept  
-- **Kochi Metro Rail Ltd. (KMRL)** → for exact timetable references  
+* **At Station**
 
-All logic, styling, animations, and implementation were engineered independently.
+  * Train docks at station marker
+  * Subtle pulsing animation indicates dwell time
 
----
+* **In Transit**
 
-## 🧠 How It Works
+  * Smooth movement between stations
+  * Position calculated from departure → next arrival
 
-### 1. The timetable (`schedule.json`)
-Contains:
-- Station list  
-- Every train trip (UP and DOWN directions)  
-- Arrival and departure times converted into **seconds of the day**
+* **Inactive**
 
-### 2. The animation engine (`app.js`)
-Every second, it:
-
-✔ Clears old train positions  
-✔ Calculates where each train should be  
-✔ Interpolates position between stations  
-✔ Animates the blue train-dot  
-✔ Lights the correct LED based on direction  
-
-### 3. UI Layer (`style.css`)
-Handles:
-- Capsules  
-- Track lines (UP → right, DOWN → left)  
-- LED glow states  
-- Blue train movement  
-- Responsive layout  
+  * Trains not within the active time window are not rendered
 
 ---
 
-## 🛠️ Tech Stack
+## 📊 Station Intelligence
 
-| Layer         | Technology                      |
-|---------------|---------------------------------|
-| UI            | HTML5                           |
-| Styling       | CSS3                            |
-| Logic         | JavaScript                      |
-| Data          | JSON (Kochi Metro schedule)     |
-| Animation     | DOM interpolation + timing loop |
-| Compatibility | Fully mobile-responsive         |
+* **Interactive Station Selection**
 
----
+  * Click any station to view live data
 
-## 📂 Project Structure
+* **Departure Board**
 
-/index.html → Main document
-/style.css → Metro UI theme + animations
-/app.js → Real-time train animation engine
-/schedule.json → Kochi Metro timetable (formatted)
+  * Displays next 3 departures
+  * Split by direction:
+
+    * **Northbound → Aluva**
+    * **Southbound → Tripunithura**
 
 ---
 
-## 📸 Screenshots  
+## 💰 Fare Calculator
+
+* Select origin and destination stations
+
+* Instantly view:
+
+  * Fare (₹)
+  * Estimated travel context
+
+* Powered by preprocessed fare matrix from GTFS data
 
 ---
 
-## 📱 Future Roadmap (Mobile App Version)
+## 🎟 Ticketing Integration
 
-Planned enhancements:
-
-- 🚆 Live countdown per station  
-- 🔊 Arrival voice announcements  
-- 🌐 Real API for timetable updates  
-- 🎨 Theme selector (Neon / Classic / Minimal)  
-- 🗺️ Interactive Kochi Metro route map  
-- ⭐ Favorite station bookmarking  
-- 📍 Nearest station detection (GPS)  
-
-Open to suggestions and feature requests!
+Includes a direct link to the official Kochi Metro ticketing platform for real-world usage.
 
 ---
 
-## 🧩 Why This Project Stands Out
+## 🔄 Dual View System
 
-- Built fully from scratch  
-- Real-time logic — not a static UI  
-- Uses real train schedules  
-- High-performance animation  
-- Clean metro-themed interface  
-- Perfect for recruiters and portfolio showcases  
-- Expandable into a real mobile application  
+* **Map View** → Real geographic visualization
+* **Line View** → Abstract horizontal metro diagram
 
 ---
 
-## 🙏 Credits
+## 📱 Responsive Design
 
-- **KMRL (Kochi Metro Rail Ltd.)** — timetable reference  
-- **MetroBoard (Instagram)** — visual inspiration  
-
-All code, graphics, and animations created by me.
+* Mobile-first layout
+* Horizontal scrolling support
+* Optimized for low-end devices
 
 ---
 
-## 📬 Contact
+## ⚙️ Performance Optimizations
 
-**GitHub:** [(welkincedev)  ](https://github.com/welkincedev)
-**LinkedIn:** ([Welkince Clair](https://www.linkedin.com/in/welkince-clair-a58a772b1?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app))  
+* Active trip filtering (only renders relevant trains)
+* Efficient animation loop using `requestAnimationFrame`
+* Lightweight vanilla JavaScript (no heavy frameworks)
+
+---
+
+## 🛠 Tech Stack
+
+* HTML5
+* CSS3 (Custom Properties, Glassmorphism UI)
+* JavaScript (ES6 Modules)
+* Leaflet.js
+
+---
+
+## 📂 Data Structure
+
+```
+/data
+  stations.json
+  trips.json
+  shapes.json
+  fares.json
+```
+
+---
+
+## 🚀 Getting Started
+
+1. Clone the repository
+2. Run preprocessing (if using raw GTFS):
+
+```
+node preprocess.js
+```
+
+3. Open `index.html` in your browser
+
+---
+
+## 💡 Usage Tip
+
+Click on any station marker to instantly view the **next upcoming trains**, fully synced with the official schedule.
+
+---
+
+## 🎯 Project Goal
+
+To build a **real-time metro operations display** that is:
+
+* Accurate
+* Performant
+* Intuitive
+* Visually refined
+
+---
+
+## 🔮 Future Enhancements
+
+* Train identification system
+* Network load analytics
+* Map-based congestion heatmap
+* Progressive Web App (PWA) support
+
+---
+
+## 📜 License
+
+This project uses publicly available transit data.
+Please verify usage rights before commercial deployment.
+
+---
+
+## 🙌 Acknowledgements
+
+* Kochi Metro Rail Limited (KMRL) for open data
+* OpenStreetMap contributors
+* Leaflet.js community
+
+---
