@@ -1,286 +1,492 @@
 /* ============================================
-   GENERAL
+   DESIGN TOKENS
 ============================================ */
+:root {
+    --bg-deep: #080a0c;
+    --bg-card: rgba(25, 30, 35, 0.7);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    
+    --accent-cyan: #00ffd2;
+    --accent-lime: #a2ff00;
+    --accent-green: #3aa63f;
+    --text-primary: #ffffff;
+    --text-secondary: #8a949e;
+    --text-muted: #4e565f;
+    
+    --glow-cyan: 0 0 15px rgba(0, 255, 210, 0.4);
+    --glow-lime: 0 0 15px rgba(162, 255, 0, 0.4);
+    
+    --font-main: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    --track-width: 4px;
+    --station-gap: 50px;
+}
+
+/* ============================================
+   GENERAL & LAYOUT
+============================================ */
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
     padding: 0;
-    background: #0d0f11;
-    color: white;
-    font-family: "Inter", sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-main);
     overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#app-container {
+    flex: 1;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ============================================
-   HEADER (Kochi Metro Style)
+   HEADER
 ============================================ */
-
 #header {
-    background: #111418;
-    border-bottom: 1px solid #1c1f22;
-    padding: 14px 0;
-    position: relative;
+    background: rgba(13, 16, 20, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-glass);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-/* Aqua Metro Underline */
-#header::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 65%;
-    height: 3px;
-    transform: translateX(-50%);
-    background: linear-gradient(90deg, #00e1ff, #00ff99);
-    border-radius: 2px;
-    box-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
-}
-
-/* Header flex container */
 #header-content {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 20px;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 12px;
 }
 
-/* Kochi Metro Logo */
 #metro-logo {
-    height: 34px;
-    filter: drop-shadow(0 0 2px #00ffe1);
+    height: 38px;
+    filter: drop-shadow(0 0 4px var(--accent-cyan));
 }
 
-/* Gradient Title */
 #header-title {
     font-size: 20px;
-    letter-spacing: 1px;
-    font-weight: 600;
-
-    background: linear-gradient(90deg, #00e1ff, #00ff99);
-    background-clip: text;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, var(--accent-cyan), #ffffff);
     -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
-    -webkit-text-fill-color: transparent;
 }
 
 /* ============================================
-   BOARD
+   CONTROL HUB
 ============================================ */
+#control-hub {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+}
+
+.digital-display {
+    display: flex;
+    flex-direction: column;
+}
+
+.digital-display .label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+#clock-value {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 8px rgba(0, 255, 210, 0.3);
+}
+
+#filters {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    border-radius: 10px;
+    gap: 4px;
+}
+
+.filter-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+    background: var(--border-glass);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+}
+
+#status-indicator {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#status-indicator.online {
+    color: var(--accent-lime);
+}
+
+/* ============================================
+   SIMULATION CONTROLS
+============================================ */
+#sim-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.control-group .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-secondary);
+    min-width: 120px;
+}
+
+#speed-slider {
+    flex: 1;
+    height: 4px;
+    background: #1a1f24;
+    border-radius: 2px;
+    appearance: none;
+    outline: none;
+}
+
+#speed-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-cyan);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+#speed-value {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-cyan);
+    min-width: 40px;
+}
+
+#next-train-board {
+    border-top: 1px solid var(--border-glass);
+    padding-top: 10px;
+}
+
+#departure-slots {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    overflow-x: auto;
+}
+
+.departure-tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    padding: 6px 12px;
+    border-radius: 8px;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.departure-tile .dir {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.departure-tile.up .dir { color: var(--accent-lime); }
+.departure-tile.down .dir { color: var(--accent-cyan); }
+
+.departure-tile .time {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #fff;
+}
+
+/* ============================================
+   MAP BOARD
+============================================ */
+#board-overflow-container {
+    flex: 1;
+    position: relative;
+}
 
 #board {
     position: relative;
     width: 100%;
-    max-width: 500px;
-    margin: 20px auto;
+    padding: 40px 0;
 }
 
-/* ============================================
-   TRACK LINES (Behind Capsules)
-============================================ */
-
+/* Tracks */
 .track {
     position: absolute;
-    top: 25px; 
+    top: 0;
     bottom: 0;
-    width: 4px;
-    background: #3aa63f;
-    border-radius: 3px;
+    width: var(--track-width);
+    background: #1a1f24;
+    border-radius: 4px;
     z-index: 1;
 }
 
-/* DOWN track = LEFT side */
-.track-down {
-    left: calc(50% - 155px);
+.track::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.3;
 }
 
-/* UP track = RIGHT side */
-.track-up {
-    left: calc(50% + 155px);
+.track-down { left: calc(50% - 140px); }
+.track-up { left: calc(50% + 140px); }
+
+/* Glowing Overlay for active tracks */
+.track-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
+
+.track-down::after { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+.track-up::after { background: var(--accent-lime); box-shadow: 0 0 10px var(--accent-lime); }
 
 /* ============================================
-   STATION LIST
+   STATIONS
 ============================================ */
-
 #station-list {
     display: flex;
     flex-direction: column;
-    gap: 45px;
-    position: relative;
+    gap: var(--station-gap);
     z-index: 5;
 }
 
-/* Station container */
 .station {
     position: relative;
-    text-align: center;
+    display: flex;
+    justify-content: center;
 }
 
-/* Station pill capsule */
 .station-capsule {
-    width: 75%;
-    background: white;
-    border: 1px solid #dfe1e3;
-    border-radius: 24px;
-    padding: 10px 16px;
-    margin: 0 auto;
+    width: 220px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: black;
-    z-index: 10;
+    backdrop-filter: blur(8px);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    z-index: 2;
 }
 
-/* Station name */
+.station-capsule:hover {
+    transform: scale(1.02);
+    border-color: rgba(255,255,255,0.15);
+}
+
 .station-name {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
 }
 
 /* LED Indicators */
 .led {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background: white;
-    border: 3px solid #3aa63f;
+    background: #1a1f24;
+    border: 2px solid var(--border-glass);
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.led.active {
-    background: #3aa63f;
-    box-shadow: 0 0 6px #3aa63f;
+.led::after {
+    content: "";
+    position: absolute;
+    top: -4px; left: -4px; right: -4px; bottom: -4px;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* LED Active States */
+.led.active-down {
+    background: var(--accent-cyan);
+    border-color: #ffffff;
+    box-shadow: var(--glow-cyan);
+}
+.led.active-up {
+    background: var(--accent-lime);
+    border-color: #ffffff;
+    box-shadow: var(--glow-lime);
 }
 
 /* ============================================
-   TRAIN DOT (MOVING)
+   TRAINS
 ============================================ */
-
-.train-dot {
-    width: 20px;
-    height: 20px;
-    background: cyan;
-    border-radius: 50%;
+.train-node {
     position: absolute;
+    width: 28px;
+    height: 28px;
     left: 50%;
     transform: translateX(-50%);
-    margin-top: 22px;
-    box-shadow: 0 0 10px cyan;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 50;
+    pointer-events: none;
+    will-change: transform, top;
 }
 
-.train-icon {
-    font-size: 12px;
+.train-visual {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border: 2px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: border-color 0.3s ease;
+}
+
+.train-node.down .train-visual { border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+.train-node.up .train-visual { border-color: var(--accent-lime); box-shadow: var(--glow-lime); }
+
+.train-chevron {
+    width: 12px;
+    height: 12px;
+    fill: white;
+}
+
+.train-node.down .train-chevron { transform: rotate(180deg); } /* Points Down */
+
+/* Pulse Animation */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.train-visual {
+    animation: pulse 2s infinite ease-in-out;
 }
 
 /* ============================================
-   FOOTER CREDITS (Modern + Responsive)
+   MOBILE ADAPTATION
 ============================================ */
+@media (max-width: 500px) {
+    #header-title { font-size: 16px; }
+    #metro-logo { height: 30px; }
+    
+    #app-container { padding: 10px; }
+    
+    #station-list { gap: 40px; }
+    .station-capsule { width: 180px; padding: 6px 12px; }
+    .station-name { font-size: 12px; }
+    
+    .track-down { left: calc(50% - 115px); }
+    .track-up { left: calc(50% + 115px); }
+    
+    #control-hub { 
+        grid-template-columns: 1fr; 
+        text-align: center;
+        gap: 12px;
+    }
+    #filters { justify-content: center; }
+    .digital-display { align-items: center; }
+}
+
+/* ============================================
+   FOOTER & MISC
+============================================ */
+#disclaimer {
+    margin-top: 40px;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.6;
+}
+
+#credits-container {
+    padding: 30px 15px;
+    background: #050607;
+    border-top: 1px solid var(--border-glass);
+}
 
 #credits {
+    max-width: 600px;
+    margin: 0 auto;
     text-align: center;
-    padding: 15px;
     font-size: 12px;
-    color: #aaaaaa;
-    margin-top: 30px;
-    border-top: 1px solid #1c1f22;
-    background: #0d0f11;
-    line-height: 1.5;
+    color: var(--text-muted);
 }
 
 #credits a {
-    color: #4da8ff;
+    color: var(--accent-cyan);
     text-decoration: none;
-    transition: color 0.2s ease, opacity 0.2s ease;
+    font-weight: 600;
 }
 
 #credits a:hover {
     text-decoration: underline;
-    color: #7dc4ff;
-    opacity: 0.9;
-}
-
-/* ============================================
-   MOBILE RESPONSIVE FIXES
-============================================ */
-
-@media (max-width: 500px) {
-
-    /* Header */
-    #header {
-        padding: 10px 0;
-    }
-
-    #header-content {
-        gap: 8px;
-    }
-
-    #metro-logo {
-        height: 22px;   /* Smaller mobile logo */
-    }
-
-    #header-title {
-        font-size: 15.5px;
-        letter-spacing: 0.5px;
-    }
-
-    #header::after {
-        width: 70%;
-    }
-
-    /* Stations */
-    .station-capsule {
-        width: 90%;
-    }
-
-    /* Track alignment tighter on mobile */
-    .track-down {
-        left: calc(50% - 135px);
-    }
-
-    .track-up {
-        left: calc(50% + 135px);
-    }
-
-    /* Footer compressed */
-    #credits {
-        font-size: 10.5px;
-        padding: 10px 6px;
-        margin-top: 18px;
-        line-height: 1.3;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
-/* Extra small devices */
-@media (max-width: 360px) {
-    #metro-logo {
-        height: 20px;
-    }
-    #header-title {
-        font-size: 14px;
-    }
-    #header::after {
-        width: 80%;
-    }
-}
-
-#disclaimer {
-    text-align: center;
-    font-size: 11px;
-    color: #777;
-    margin-top: 8px;
-    padding-bottom: 10px;
-}
-
-@media (max-width: 500px) {
-    #disclaimer {
-        font-size: 10px;
-        white-space: normal;
-        padding: 0 12px;
-    }
 }
