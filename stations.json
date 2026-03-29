@@ -1,0 +1,152 @@
+{
+  "ALVA": {
+    "id": "ALVA",
+    "name": "Aluva",
+    "lat": 10.1099,
+    "lon": 76.3495
+  },
+  "PNCU": {
+    "id": "PNCU",
+    "name": "Pulinchodu",
+    "lat": 10.0951,
+    "lon": 76.3466
+  },
+  "CPPY": {
+    "id": "CPPY",
+    "name": "Companypady",
+    "lat": 10.0873,
+    "lon": 76.3428
+  },
+  "ATTK": {
+    "id": "ATTK",
+    "name": "Ambattukavu",
+    "lat": 10.0793,
+    "lon": 76.3389
+  },
+  "MUTT": {
+    "id": "MUTT",
+    "name": "Muttom",
+    "lat": 10.0727,
+    "lon": 76.3336
+  },
+  "KLMT": {
+    "id": "KLMT",
+    "name": "Kalamassery",
+    "lat": 10.0586,
+    "lon": 76.322
+  },
+  "CCUV": {
+    "id": "CCUV",
+    "name": "Cochin University",
+    "lat": 10.0467,
+    "lon": 76.3182
+  },
+  "PDPM": {
+    "id": "PDPM",
+    "name": "Pathadipalam",
+    "lat": 10.0361,
+    "lon": 76.3144
+  },
+  "EDAP": {
+    "id": "EDAP",
+    "name": "Edapally",
+    "lat": 10.0251,
+    "lon": 76.3083
+  },
+  "CGPP": {
+    "id": "CGPP",
+    "name": "Changampuzha Park",
+    "lat": 10.0152,
+    "lon": 76.3023
+  },
+  "PARV": {
+    "id": "PARV",
+    "name": "Palarivattom",
+    "lat": 10.0064,
+    "lon": 76.3048
+  },
+  "JLSD": {
+    "id": "JLSD",
+    "name": "JLN Stadium",
+    "lat": 10.0002,
+    "lon": 76.2989
+  },
+  "KALR": {
+    "id": "KALR",
+    "name": "Kaloor",
+    "lat": 9.9943,
+    "lon": 76.2914
+  },
+  "TNHL": {
+    "id": "TNHL",
+    "name": "Town Hall",
+    "lat": 9.9913775,
+    "lon": 76.2883601
+  },
+  "MGRD": {
+    "id": "MGRD",
+    "name": "MG Road",
+    "lat": 9.9834,
+    "lon": 76.2823
+  },
+  "MACE": {
+    "id": "MACE",
+    "name": "Maharajas College",
+    "lat": 9.9732,
+    "lon": 76.2851
+  },
+  "ERSH": {
+    "id": "ERSH",
+    "name": "Ernakulam South",
+    "lat": 9.9686042,
+    "lon": 76.2895744
+  },
+  "KVTR": {
+    "id": "KVTR",
+    "name": "Kadavanthra",
+    "lat": 9.9665809,
+    "lon": 76.2981877
+  },
+  "EMKM": {
+    "id": "EMKM",
+    "name": "Elamkulam",
+    "lat": 9.9671248,
+    "lon": 76.3084899
+  },
+  "VYTA": {
+    "id": "VYTA",
+    "name": "Vyttila",
+    "lat": 9.9675457,
+    "lon": 76.3203664
+  },
+  "THYK": {
+    "id": "THYK",
+    "name": "Thykoodam",
+    "lat": 9.9600311,
+    "lon": 76.3236762
+  },
+  "PETT": {
+    "id": "PETT",
+    "name": "Pettah",
+    "lat": 9.9524842,
+    "lon": 76.3302101
+  },
+  "VAKK": {
+    "id": "VAKK",
+    "name": "Vadakkekotta",
+    "lat": 9.952838,
+    "lon": 76.3394827
+  },
+  "SNJN": {
+    "id": "SNJN",
+    "name": "SN Junction",
+    "lat": 9.9547532,
+    "lon": 76.3458505
+  },
+  "TPHT": {
+    "id": "TPHT",
+    "name": "Tripunithura",
+    "lat": 9.95078,
+    "lon": 76.35183
+  }
+}

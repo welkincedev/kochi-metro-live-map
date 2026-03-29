@@ -1,0 +1,7 @@
+fare_id,price,agency_id,currency_type,payment_method,transfers
+F1,60.0,KMRL,INR,1,
+F2,50.0,KMRL,INR,1,
+F3,40.0,KMRL,INR,1,
+F4,30.0,KMRL,INR,1,
+F5,20.0,KMRL,INR,1,
+F6,10.0,KMRL,INR,1,

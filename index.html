@@ -1,69 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kochi Metro • Live Map</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kochi Metro | Live Geo-Operations</title>
     
-    <!-- Modern Typography -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css" />
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
+<body class="dark-theme">
 
-<body>
-    <header id="header">
-        <div id="header-content">
-            <img src="https://upload.wikimedia.org/wikipedia/en/1/18/Koch_Metro_Logo.png" alt="Kochi Metro Logo" id="metro-logo">
-            <span id="header-title">Kochi Metro • Network Status Board</span>
-        </div>
-    </header>
-
-    <main id="app-container">
-        <!-- Dashboard Overview -->
-        <section id="dashboard-header">
-            <div id="live-clock" class="digital-display">
-                <span class="label">OPERATIONAL TIME</span>
-                <span id="clock-value">00:00:00</span>
+    <div id="app-viewport">
+        <!-- Header HUD -->
+        <header id="main-header">
+            <div class="header-left">
+                <img src="https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png" alt="KMRL" id="metro-logo">
+                <div class="header-text">
+                    <h1>Network Operations</h1>
+                    <div id="status-bar">
+                        <span class="status-dot pulse"></span>
+                        <span id="network-status">SYSTEM ONLINE</span>
+                    </div>
+                </div>
             </div>
             
-            <div id="filters">
-                <button class="filter-btn active" data-filter="all">ALL</button>
-                <button class="filter-btn" data-filter="up">UP (NORTH)</button>
-                <button class="filter-btn" data-filter="down">DOWN (SOUTH)</button>
+            <div class="header-right">
+                <div class="digital-clock">
+                    <span class="label">CURRENT TIME</span>
+                    <span id="clock-value">00:00:00</span>
+                </div>
+                <div class="view-toggle">
+                    <button id="toggle-map" class="active">MAP</button>
+                    <button id="toggle-line">LINE</button>
+                </div>
             </div>
-            
-            <div id="status-panel" class="digital-display">
-                <span class="label">SYSTEM STATUS</span>
-                <span id="status-indicator" class="online">REAL-TIME</span>
+        </header>
+
+        <!-- Main Display Areas -->
+        <main id="display-container">
+            <!-- Geographic Map View -->
+            <div id="map-view" class="view-cell active">
+                <div id="leaflet-map"></div>
             </div>
-        </section>
 
-        <!-- Interactive Network Board -->
-        <div id="board-overflow-container">
-            <div id="board">
-                <div id="track-down" class="track track-down"></div>
-                <div id="track-up" class="track track-up"></div>
-                
-                <div id="station-list"></div>
-                <!-- Interactive trains will be injected here -->
+            <!-- Horizontal Line View (Legacy) -->
+            <div id="line-view" class="view-cell">
+                <div id="board-overflow-container">
+                    <div id="board">
+                        <div class="track"></div>
+                        <div id="station-list"></div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </main>
 
-        <div id="disclaimer">
-            <i class="icon">🚆</i> All data strictly synchronized with Kochi Metro official timetable.
-        </div>
-    </main>
+        <!-- Operation Sidebars -->
+        <aside id="operations-panel">
+            <!-- Fare Calculator -->
+            <section class="ops-card" id="fare-calculator">
+                <h3><span class="icon">💰</span> Fare Calculator</h3>
+                <div class="input-group">
+                    <select id="origin-select"><option value="">Select Origin</option></select>
+                    <div class="swap-btn">⇅</div>
+                    <select id="dest-select"><option value="">Select Destination</option></select>
+                </div>
+                <div id="fare-result" class="hidden">
+                    <div class="fare-value">₹<span id="fare-amt">--</span></div>
+                    <div class="travel-time">Est. <span id="est-time">--</span> mins</div>
+                </div>
+            </section>
 
-    <footer id="credits-container">
-        <div id="credits">
-            Built by <a href="https://github.com/welkincedev/kochi-metro-live-map" target="_blank">Welkince Clair</a> 
-            • Data: <a href="https://kochimetro.org" target="_blank">Kochi Metro</a> 
-            • Inspired by <a href="https://instagram.com/designrulesco" target="_blank">Designrulesco</a>
-        </div>
-    </footer>
+            <!-- Station HUD (Dynamic) -->
+            <section class="ops-card" id="station-hud">
+                <h3 id="hud-station-name">Station HUD</h3>
+                <div class="departure-groups">
+                    <div class="dep-group northbound">
+                        <div class="group-header">← North (Aluva)</div>
+                        <div class="dep-list" id="north-deps"></div>
+                    </div>
+                    <div class="dep-group southbound">
+                        <div class="group-header">South (Tripunithura) →</div>
+                        <div class="dep-list" id="south-deps"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- External Links -->
+            <section class="ops-card" id="external-actions">
+                <a href="https://kochimetro.org/ticketing/" target="_blank" class="book-btn">
+                    <span class="icon">🎟</span> BOOK TICKET
+                </a>
+                <p class="small-disclaimer">Official Kochi Metro Ticket System</p>
+            </section>
+        </aside>
+    </div>
 
     <script src="app.js"></script>
 </body>
