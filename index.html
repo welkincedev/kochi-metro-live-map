@@ -17,58 +17,43 @@
     <header id="header">
         <div id="header-content">
             <img src="https://upload.wikimedia.org/wikipedia/en/1/18/Koch_Metro_Logo.png" alt="Kochi Metro Logo" id="metro-logo">
-            <span id="header-title">Kochi Metro • Live Network Map</span>
+            <span id="header-title">Kochi Metro • Network Status Board</span>
         </div>
     </header>
 
     <main id="app-container">
-        <!-- Control Hub -->
-        <section id="control-hub">
+        <!-- Dashboard Overview -->
+        <section id="dashboard-header">
             <div id="live-clock" class="digital-display">
-                <span class="label">CURRENT TIME</span>
+                <span class="label">OPERATIONAL TIME</span>
                 <span id="clock-value">00:00:00</span>
             </div>
             
             <div id="filters">
                 <button class="filter-btn active" data-filter="all">ALL</button>
-                <button class="filter-btn" data-filter="up">UP</button>
-                <button class="filter-btn" data-filter="down">DOWN</button>
+                <button class="filter-btn" data-filter="up">UP (NORTH)</button>
+                <button class="filter-btn" data-filter="down">DOWN (SOUTH)</button>
             </div>
             
             <div id="status-panel" class="digital-display">
-                <span class="label">LIVE STATUS</span>
-                <span id="status-indicator" class="online">ONLINE</span>
+                <span class="label">SYSTEM STATUS</span>
+                <span id="status-indicator" class="online">REAL-TIME</span>
             </div>
         </section>
 
-        <!-- Speed / Mode Controller -->
-        <section id="sim-controls">
-            <div class="control-group">
-                <span class="label">SIMULATION SPEED</span>
-                <input type="range" id="speed-slider" min="1" max="100" value="1">
-                <span id="speed-value">1x</span>
-            </div>
-            <div id="next-train-board">
-                <span class="label">NEXT DEPARTURES</span>
-                <div id="departure-slots">
-                    <span class="no-data">Calculating...</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Interactive Map Board -->
+        <!-- Interactive Network Board -->
         <div id="board-overflow-container">
             <div id="board">
                 <div id="track-down" class="track track-down"></div>
                 <div id="track-up" class="track track-up"></div>
                 
                 <div id="station-list"></div>
-                <!-- Trains will be injected here via JS -->
+                <!-- Interactive trains will be injected here -->
             </div>
         </div>
 
         <div id="disclaimer">
-            <i class="icon">ℹ️</i> Train movement simulated from official timetable data. Real-time deviations may occur.
+            <i class="icon">🚆</i> All data strictly synchronized with Kochi Metro official timetable.
         </div>
     </main>
 

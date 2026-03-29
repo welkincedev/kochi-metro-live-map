@@ -163,97 +163,97 @@ body {
 }
 
 /* ============================================
-   SIMULATION CONTROLS
+   STATION COMPONENTS
 ============================================ */
-#sim-controls {
+#station-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 12px;
+    gap: 80px; /* Increased for departure info */
+    z-index: 5;
 }
 
-.control-group {
+.station {
+    position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
 }
 
-.control-group .label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text-secondary);
-    min-width: 120px;
-}
-
-#speed-slider {
-    flex: 1;
-    height: 4px;
-    background: #1a1f24;
-    border-radius: 2px;
-    appearance: none;
-    outline: none;
-}
-
-#speed-slider::-webkit-slider-thumb {
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    background: var(--accent-cyan);
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 0 10px var(--accent-cyan);
-}
-
-#speed-value {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--accent-cyan);
-    min-width: 40px;
-}
-
-#next-train-board {
-    border-top: 1px solid var(--border-glass);
-    padding-top: 10px;
-}
-
-#departure-slots {
-    display: flex;
-    gap: 10px;
-    margin-top: 8px;
-    overflow-x: auto;
-}
-
-.departure-tile {
+.station-capsule {
+    width: 260px;
     background: var(--bg-card);
     border: 1px solid var(--border-glass);
-    padding: 6px 12px;
-    border-radius: 8px;
-    min-width: 120px;
+    border-radius: 14px;
+    padding: 12px 16px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 10px;
+    backdrop-filter: blur(12px);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    z-index: 2;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
-.departure-tile .dir {
-    font-size: 9px;
+.station-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.station-name {
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 1px;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
 }
 
-.departure-tile.up .dir { color: var(--accent-lime); }
-.departure-tile.down .dir { color: var(--accent-cyan); }
+/* Mini Departure Board inside Station */
+.departure-board-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    width: 100%;
+}
 
-.departure-tile .time {
+.mini-dep-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-family: var(--font-mono);
-    font-size: 13px;
-    color: #fff;
+    font-size: 10.5px;
+}
+
+.mini-dep-row .time { color: var(--text-primary); font-weight: 700; }
+.mini-dep-row .dir-label { font-size: 9px; opacity: 0.6; text-transform: uppercase; }
+.mini-dep-row.up .dir-label { color: var(--accent-lime); }
+.mini-dep-row.down .dir-label { color: var(--accent-cyan); }
+
+/* LED Indicators */
+.led {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #121518;
+    border: 2px solid var(--border-glass);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.led.active-down {
+    background: var(--accent-cyan);
+    box-shadow: 0 0 12px var(--accent-cyan);
+    border-color: #fff;
+}
+.led.active-up {
+    background: var(--accent-lime);
+    box-shadow: 0 0 12px var(--accent-lime);
+    border-color: #fff;
 }
 
 /* ============================================
-   MAP BOARD
+   MAP BOARD & TRACKS
 ============================================ */
 #board-overflow-container {
     flex: 1;
@@ -263,74 +263,20 @@ body {
 #board {
     position: relative;
     width: 100%;
-    padding: 40px 0;
+    padding: 60px 0;
 }
 
-/* Tracks */
 .track {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: var(--track-width);
-    background: #1a1f24;
-    border-radius: 4px;
+    width: 3px;
+    background: #14181c;
     z-index: 1;
 }
 
-.track::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.3;
-}
-
-.track-down { left: calc(50% - 140px); }
-.track-up { left: calc(50% + 140px); }
-
-/* Glowing Overlay for active tracks */
-.track-glow {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.track-down::after { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
-.track-up::after { background: var(--accent-lime); box-shadow: 0 0 10px var(--accent-lime); }
-
-/* ============================================
-   STATIONS
-============================================ */
-#station-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--station-gap);
-    z-index: 5;
-}
-
-.station {
-    position: relative;
-    display: flex;
-    justify-content: center;
-}
-
-.station-capsule {
-    width: 220px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-glass);
-    border-radius: 12px;
-    padding: 8px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    backdrop-filter: blur(8px);
-    transition: transform 0.2s ease, border-color 0.2s ease;
-    z-index: 2;
-}
+.track-down { left: calc(50% - 150px); border-right: 1px solid rgba(0,255,210,0.1); }
+.track-up { left: calc(50% + 150px); border-left: 1px solid rgba(162,255,0,0.1); }
 
 .station-capsule:hover {
     transform: scale(1.02);
