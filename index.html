@@ -41,9 +41,16 @@
                     <span class="label">CURRENT TIME</span>
                     <span id="clock-value">00:00:00</span>
                 </div>
-                <div class="view-toggle">
-                    <button id="toggle-map" class="active">MAP</button>
-                    <button id="toggle-line">LINE</button>
+                <div class="header-controls">
+                    <div id="direction-filter-bar">
+                        <button class="dir-filter-btn active" data-dir="all">ALL</button>
+                        <button class="dir-filter-btn" data-dir="0">← ALUVA</button>
+                        <button class="dir-filter-btn" data-dir="1">THRIPPUNITHURA →</button>
+                    </div>
+                    <div class="view-toggle">
+                        <button id="toggle-map" class="active">MAP</button>
+                        <button id="toggle-line">LINE</button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -62,6 +69,23 @@
                         <div class="track"></div>
                         <div id="station-list"></div>
                         <div id="train-layer-line"></div>
+                    </div>
+                </div>
+                <!-- Line View Station Timetable Popup -->
+                <div id="line-timetable-popup" class="hidden">
+                    <div class="ltp-header">
+                        <span id="ltp-station-name">Station</span>
+                        <button id="ltp-close">✕</button>
+                    </div>
+                    <div class="ltp-body">
+                        <div class="ltp-direction ltp-north">
+                            <div class="ltp-dir-label">← Aluva</div>
+                            <div id="ltp-dir0" class="ltp-dep-list"></div>
+                        </div>
+                        <div class="ltp-direction ltp-south">
+                            <div class="ltp-dir-label">Thrippunithura →</div>
+                            <div id="ltp-dir1" class="ltp-dep-list"></div>
+                        </div>
                     </div>
                 </div>
             </div>

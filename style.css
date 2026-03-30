@@ -76,6 +76,34 @@ body {
 }
 .view-toggle button.active { background: var(--bg-item); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
+/* Header Controls (filter bar + view toggle grouped) */
+.header-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+/* Direction Filter Bar */
+#direction-filter-bar {
+    display: flex;
+    gap: 4px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border-glass);
+}
+.dir-filter-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 5px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+.dir-filter-btn.active { background: var(--bg-item); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.dir-filter-btn[data-dir="0"].active { color: var(--accent-cyan); border: 1px solid rgba(0,255,210,0.3); }
+.dir-filter-btn[data-dir="1"].active { color: var(--accent-lime); border: 1px solid rgba(162,255,0,0.3); }
+
 /* ============================================
    OPERATIONS PANEL
 ============================================ */
@@ -163,6 +191,20 @@ select {
 .leaflet-bar { border: none !important; box-shadow: 0 0 20px rgba(0,0,0,0.5) !important; }
 .leaflet-bar a { background-color: var(--bg-item) !important; color: white !important; border: 1px solid var(--border-glass) !important; }
 
+/* Train direction tooltip */
+.train-tooltip {
+    background: rgba(10, 12, 16, 0.95) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 11px !important;
+    padding: 5px 10px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    backdrop-filter: blur(10px) !important;
+}
+.train-tooltip::before { display: none !important; }
+
 /* ============================================
    ANIMATIONS
 ============================================ */
@@ -186,7 +228,7 @@ select {
 
 .line-station {
     width: 250px; flex-shrink: 0; display: flex; flex-direction: column;
-    align-items: center; cursor: pointer; transition: transform 0.3s;
+    align-items: center; cursor: pointer; transition: transform 0.3s, opacity 0.3s;
 }
 .line-station:hover { transform: translateY(-10px); }
 
@@ -214,19 +256,34 @@ select {
 
 .train-marker-line {
     position: absolute;
-    width: 24px; height: 24px;
-    background: white;
+    min-width: 90px;
+    height: 26px;
     border-radius: 6px;
-    transform: translate(-12px, -12px);
+    transform: translate(-45px, -13px);
     display: flex; align-items: center; justify-content: center;
+    gap: 5px;
     font-size: 10px; font-weight: 800; color: black;
     box-shadow: 0 0 15px rgba(255,255,255,0.4);
     transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
+    padding: 0 8px;
+    white-space: nowrap;
+    cursor: default;
 }
 
-.train-marker-line.north { background: var(--accent-lime); box-shadow: 0 0 15px var(--accent-lime); }
-.train-marker-line.south { background: var(--accent-cyan); box-shadow: 0 0 15px var(--accent-cyan); }
+.train-marker-line .train-arrow { font-size: 13px; }
+.train-marker-line .train-dest { font-size: 9px; letter-spacing: 0.5px; font-weight: 900; }
+
+.train-marker-line.north {
+    background: var(--accent-cyan);
+    box-shadow: 0 0 18px rgba(0,255,210,0.6), 0 0 40px rgba(0,255,210,0.2);
+    color: #000;
+}
+.train-marker-line.south {
+    background: var(--accent-lime);
+    box-shadow: 0 0 18px rgba(162,255,0,0.6), 0 0 40px rgba(162,255,0,0.2);
+    color: #000;
+}
 
 /* Marker Animation */
 .train-marker { filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -236,4 +293,119 @@ select {
     #operations-panel { grid-row: 3; grid-column: 1; display: grid; grid-template-columns: 1fr 1fr; border-left: none; border-top: 1px solid var(--border-glass); gap: 15px;}
     #main-header { padding: 0 15px; }
     .ops-card { padding: 12px; }
+    .header-controls { flex-direction: row; align-items: center; gap: 8px; }
+    .dir-filter-btn { font-size: 9px; padding: 4px 8px; }
+}
+
+/* ============================================
+   LINE-VIEW STATION TIMETABLE POPUP
+============================================ */
+#line-timetable-popup {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 340px;
+    background: rgba(14, 18, 26, 0.98);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,210,0.08);
+    backdrop-filter: blur(20px);
+    z-index: 500;
+    overflow: hidden;
+    animation: popup-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#line-timetable-popup.hidden { display: none; }
+
+@keyframes popup-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.96); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+.ltp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border-glass);
+}
+.ltp-header span {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+#ltp-close {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    width: 26px; height: 26px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+}
+#ltp-close:hover { background: rgba(255,255,255,0.12); color: white; }
+
+.ltp-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+.ltp-direction {
+    padding: 12px 14px;
+    border-right: 1px solid var(--border-glass);
+}
+.ltp-direction:last-child { border-right: none; }
+.ltp-dir-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.ltp-north .ltp-dir-label { color: var(--accent-cyan); }
+.ltp-south .ltp-dir-label { color: var(--accent-lime); }
+
+.ltp-dep-list { display: flex; flex-direction: column; gap: 6px; }
+.ltp-dep-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-glass);
+}
+.ltp-north .ltp-dep-item { border-left: 3px solid var(--accent-cyan); color: var(--accent-cyan); }
+.ltp-south .ltp-dep-item { border-left: 3px solid var(--accent-lime); color: var(--accent-lime); }
+.ltp-dep-item .dep-time { font-weight: 700; }
+.ltp-dep-item .dep-mins {
+    font-size: 9px;
+    opacity: 0.7;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+/* ============================================
+   LINE VIEW STATION SELECTION STATE
+============================================ */
+.line-station.selected .station-dot {
+    background: var(--accent-cyan);
+    box-shadow: 0 0 20px var(--accent-cyan), 0 0 40px rgba(0,255,210,0.4);
+    width: 18px; height: 18px;
+    border-color: white;
+}
+.line-station.selected .station-label {
+    color: var(--accent-cyan);
+    font-weight: 800;
+}
+.line-station.dimmed {
+    opacity: 0.35;
+    transform: none;
 }
