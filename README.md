@@ -1,4 +1,4 @@
-# 🚇 Kochi Metro Geo-Live Operations Display
+# 🚇 Kochi Metro Geo-Live Operations Display — v2.52
 
 A high-fidelity, data-driven metro visualization system that transforms official GTFS data into a **real-time, geographically accurate transit operations dashboard**.
 
@@ -6,138 +6,187 @@ A high-fidelity, data-driven metro visualization system that transforms official
 
 ## 🌍 Overview
 
-This project recreates the Kochi Metro network as a **live operational display**, combining real timetable data with geographic mapping to simulate actual train movement across the city.
+Version **2.52** introduces major improvements in **direction clarity, station interaction, and operational realism**, evolving the system into a more intuitive and production-ready metro display.
 
-It is designed to feel like a **control-room interface**, prioritizing accuracy, clarity, and performance over decorative simulation.
+This project focuses on **accuracy over simulation**, ensuring all train movements and station data are derived strictly from timetable logic.
 
 ---
 
 ## 🧠 Data Engine
 
 * **GTFS-Based Architecture**
-  Built on official transit datasets including stops, trips, stop_times, shapes, and fare data.
+  Built on official transit datasets (`stops`, `stop_times`, `trips`, `shapes`, `fare`).
 
 * **Preprocessing Pipeline**
-  A custom script (`preprocess.js`) converts raw GTFS CSV files into optimized JSON for fast client-side rendering.
+  `preprocess.js` converts raw GTFS CSV into optimized JSON:
 
-* **Service-Aware Logic**
-  Automatically detects weekday/weekend schedules and filters trips accordingly.
+  * `stations.json`
+  * `trips.json`
+  * `shapes.json`
+  * `fares.json`
+
+* **Service-Aware Filtering**
+  Automatically detects weekday/weekend schedules.
 
 * **Time Normalization**
-  Converts timetable data into seconds (`arrival_s`, `departure_s`) for precise calculations.
+  Uses `arrival_s` and `departure_s` for precise calculations.
 
 ---
 
 ## 🗺️ Geo-Live Map
 
-* **Geographic Accuracy**
-  Uses real latitude/longitude coordinates and track geometry to match Kochi’s metro alignment.
+* **Leaflet-Powered Map View**
+  Real geographic visualization with dark theme.
 
-* **Leaflet Integration**
-  Interactive dark-mode map with station markers and glowing track paths.
+* **Accurate Track Rendering**
+  Uses `shapes.json` to follow real metro curvature.
 
-* **Real-Time Train Movement**
+* **60 FPS Train Movement**
 
-  * Smooth 60fps interpolation using `requestAnimationFrame`
-  * Trains follow real curved paths from GTFS `shapes.txt`
-
----
-
-## 🚆 Train State System
-
-Each train behaves based on real timetable logic:
-
-* **At Station**
-
-  * Train docks at station marker
-  * Subtle pulsing animation indicates dwell time
-
-* **In Transit**
-
-  * Smooth movement between stations
-  * Position calculated from departure → next arrival
-
-* **Inactive**
-
-  * Trains not within the active time window are not rendered
+  * Smooth interpolation using `requestAnimationFrame`
+  * Real-time position based on timetable
 
 ---
 
-## 📊 Station Intelligence
+## 🚆 Direction System (v2.52 Upgrade)
 
-* **Interactive Station Selection**
+Direction is now **fully corrected and intuitive**:
 
-  * Click any station to view live data
+| Direction  | Destination    | Color   | Platform   |
+| ---------- | -------------- | ------- | ---------- |
+| Northbound | Aluva          | #00ffd2 | Platform 1 |
+| Southbound | Thrippunithura | Lime    | Platform 2 |
 
-* **Departure Board**
+* Train numbers replaced with **destination labels**
+* Visual clarity improved using:
 
-  * Displays next 3 departures
-  * Split by direction:
+  * Color coding
+  * Directional movement
 
-    * **Northbound → Aluva**
-    * **Southbound → Tripunithura**
+---
+
+## 🚉 Station Interaction (Improved)
+
+* Click any station (Map View or Line View) to:
+
+  * View live departures
+  * See platform-based grouping
+
+* **Unified behavior across views**
+  (Map and Line now behave consistently)
+
+---
+
+## 📊 Platform-Based Departure System (NEW)
+
+Each station displays departures like a real metro:
+
+### Platform 1 — Aluva (Northbound)
+
+* Next 3 departures
+
+### Platform 2 — Thrippunithura (Southbound)
+
+* Next 3 departures
+
+* Color-coded for quick identification
+
+* Clean, minimal layout
+
+---
+
+## 📏 Line View (Horizontal Layout)
+
+* Stations arranged:
+  **Aluva → Thrippunithura (Left → Right)**
+
+* Fully interactive:
+
+  * Click stations → show timetable
+  * Trains move correctly along axis
+
+* Synced with Map View logic
 
 ---
 
 ## 💰 Fare Calculator
 
-* Select origin and destination stations
+* Select:
 
-* Instantly view:
+  * From station
+  * To station
+
+* Displays:
 
   * Fare (₹)
-  * Estimated travel context
-
-* Powered by preprocessed fare matrix from GTFS data
+  * Based on official fare matrix
 
 ---
 
-## 🎟 Ticketing Integration
+## 🎟 Ticketing Integration (Updated)
 
-Includes a direct link to the official Kochi Metro ticketing platform for real-world usage.
+* WhatsApp-based booking support:
+
+📱 **Book via WhatsApp:**
+`+91 88957 48848`
+
+* Pre-filled message for quick access
 
 ---
 
-## 🔄 Dual View System
+## 🎨 UI / UX Design
 
-* **Map View** → Real geographic visualization
-* **Line View** → Abstract horizontal metro diagram
+* Glassmorphic station elements
+* Neon-inspired metro theme
+* Clean, minimal interface
+
+### Improvements in v2.52:
+
+* Removed unnecessary Station HUD
+* Reduced visual clutter
+* Improved direction understanding
+* Consistent interaction model
+
+---
+
+## ⚙️ Performance Optimizations
+
+* Active trip filtering (only current trains rendered)
+* Efficient animation loop (`requestAnimationFrame`)
+* Lightweight architecture (no heavy frameworks)
 
 ---
 
 ## 📱 Responsive Design
 
 * Mobile-first layout
-* Horizontal scrolling support
+* Horizontal scroll support
 * Optimized for low-end devices
-
----
-
-## ⚙️ Performance Optimizations
-
-* Active trip filtering (only renders relevant trains)
-* Efficient animation loop using `requestAnimationFrame`
-* Lightweight vanilla JavaScript (no heavy frameworks)
 
 ---
 
 ## 🛠 Tech Stack
 
 * HTML5
-* CSS3 (Custom Properties, Glassmorphism UI)
+* CSS3 (Custom Properties)
 * JavaScript (ES6 Modules)
 * Leaflet.js
 
 ---
 
-## 📂 Data Structure
+## 📂 Project Structure
 
-```
+```id="w8t3me"
 /data
   stations.json
   trips.json
   shapes.json
   fares.json
+
+index.html
+style.css
+app.js
+preprocess.js
 ```
 
 ---
@@ -145,19 +194,26 @@ Includes a direct link to the official Kochi Metro ticketing platform for real-w
 ## 🚀 Getting Started
 
 1. Clone the repository
-2. Run preprocessing (if using raw GTFS):
 
-```
+2. (Optional) Process GTFS data:
+
+```id="c7kjq1"
 node preprocess.js
 ```
 
-3. Open `index.html` in your browser
+3. Open:
+
+```id="m5lqz9"
+index.html
+```
 
 ---
 
-## 💡 Usage Tip
+## 💡 Usage Tips
 
-Click on any station marker to instantly view the **next upcoming trains**, fully synced with the official schedule.
+* Click any station to view live departures
+* Use Map / Line toggle for different perspectives
+* Use fare calculator for quick trip cost
 
 ---
 
@@ -166,9 +222,9 @@ Click on any station marker to instantly view the **next upcoming trains**, full
 To build a **real-time metro operations display** that is:
 
 * Accurate
-* Performant
 * Intuitive
-* Visually refined
+* Performant
+* Production-ready
 
 ---
 
@@ -176,21 +232,21 @@ To build a **real-time metro operations display** that is:
 
 * Train identification system
 * Network load analytics
-* Map-based congestion heatmap
-* Progressive Web App (PWA) support
+* Heatmap visualization
+* PWA support
 
 ---
 
 ## 📜 License
 
-This project uses publicly available transit data.
-Please verify usage rights before commercial deployment.
+Uses publicly available transit data.
+Verify usage permissions before commercial deployment.
 
 ---
 
 ## 🙌 Acknowledgements
 
-* Kochi Metro Rail Limited (KMRL) for open data
+* Kochi Metro Rail Limited (KMRL)
 * OpenStreetMap contributors
 * Leaflet.js community
 
