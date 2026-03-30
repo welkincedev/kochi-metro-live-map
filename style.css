@@ -101,8 +101,8 @@ body {
     white-space: nowrap;
 }
 .dir-filter-btn.active { background: var(--bg-item); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-.dir-filter-btn[data-dir="0"].active { color: var(--accent-cyan); border: 1px solid rgba(0,255,210,0.3); }
-.dir-filter-btn[data-dir="1"].active { color: var(--accent-lime); border: 1px solid rgba(162,255,0,0.3); }
+.dir-filter-btn[data-dir="1"].active { color: var(--accent-cyan); border: 1px solid rgba(0,255,210,0.3); }
+.dir-filter-btn[data-dir="0"].active { color: var(--accent-lime); border: 1px solid rgba(162,255,0,0.3); }
 
 /* ============================================
    OPERATIONS PANEL
@@ -141,16 +141,98 @@ select {
 .fare-value { font-size: 32px; font-weight: 800; color: var(--accent-cyan); margin-bottom: 5px; }
 .travel-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
 
-/* Station HUD */
-.dep-list { display: flex; flex-direction: column; gap: 8px; }
+/* ============================================
+   STATION HUD — PLATFORM BOARD
+============================================ */
+.departure-groups { display: flex; flex-direction: column; gap: 12px; }
+
+/* Platform block wrapper */
+.platform-block {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-glass);
+    background: rgba(255,255,255,0.02);
+}
+
+/* Platform header row */
+.platform-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-glass);
+}
+.platform-dest {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.platform--north .platform-header { background: rgba(0,255,210,0.06); }
+.platform--south .platform-header { background: rgba(162,255,0,0.06); }
+.platform--north .platform-dest   { color: var(--accent-cyan); }
+.platform--south .platform-dest   { color: var(--accent-lime); }
+
+/* "PF 1" / "PF 2" pill badge */
+.platform-pill {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 3px 7px;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+.platform-pill--north {
+    background: var(--accent-cyan);
+    color: #000;
+    box-shadow: 0 0 8px rgba(0,255,210,0.4);
+}
+.platform-pill--south {
+    background: var(--accent-lime);
+    color: #000;
+    box-shadow: 0 0 8px rgba(162,255,0,0.4);
+}
+
+/* Departure rows inside platform block */
 .dep-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border-glass);
+    padding: 9px 12px;
     font-family: var(--font-mono); font-size: 11px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
 }
-#dir0-deps .dep-item { border-left: 3px solid var(--accent-lime); color: var(--accent-lime); }
-#dir1-deps .dep-item { border-left: 3px solid var(--accent-cyan); color: var(--accent-cyan); }
+.dep-item:last-child { border-bottom: none; }
+
+.dep-item--north { color: var(--accent-cyan); }
+.dep-item--south { color: var(--accent-lime); }
+
+.dep-dest { font-weight: 600; }
+.dep-right { display: flex; align-items: center; gap: 6px; }
+.dep-time-val { font-weight: 700; }
+.dep-mins-badge {
+    font-size: 9px;
+    background: rgba(255,255,255,0.08);
+    padding: 2px 5px;
+    border-radius: 4px;
+    opacity: 0.85;
+}
+
+/* No service state */
+.dep-no-service {
+    padding: 9px 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    font-style: italic;
+}
+
+/* Legacy fallback (kept for safety) */
+.dep-list { display: flex; flex-direction: column; }
+#dir0-deps .dep-item--south { border-left: 3px solid var(--accent-lime); }
+#dir1-deps .dep-item--north { border-left: 3px solid var(--accent-cyan); }
+
 
 /* Swap Button */
 .swap-btn {
@@ -359,6 +441,9 @@ select {
 }
 .ltp-direction:last-child { border-right: none; }
 .ltp-dir-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
@@ -368,6 +453,18 @@ select {
 }
 .ltp-north .ltp-dir-label { color: var(--accent-cyan); }
 .ltp-south .ltp-dir-label { color: var(--accent-lime); }
+
+/* Platform badge inside popup */
+.ltp-pf-badge {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.ltp-pf-badge--north { background: var(--accent-cyan); color: #000; }
+.ltp-pf-badge--south { background: var(--accent-lime); color: #000; }
 
 .ltp-dep-list { display: flex; flex-direction: column; gap: 6px; }
 .ltp-dep-item {
@@ -391,6 +488,16 @@ select {
     padding: 2px 5px;
     border-radius: 4px;
 }
+
+/* No-service placeholder */
+.ltp-no-service {
+    font-style: italic;
+    opacity: 0.45;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 4px 2px;
+}
+
 
 /* ============================================
    LINE VIEW STATION SELECTION STATE

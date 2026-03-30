@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kochi Metro | Live Geo-Operations</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="dark-theme">
 
     <div id="app-viewport">
@@ -23,19 +27,22 @@
         <header id="main-header">
             <div class="header-left">
                 <div id="logo-container">
-                    <img src="https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png" 
-                         alt="KMRL" id="metro-logo" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block'">
-                    <span id="logo-fallback" style="display:none; font-weight:800; font-size:20px; color:var(--accent-cyan);">KOCHI METRO</span>
+                    <img src="https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png" alt="KMRL"
+                        id="metro-logo"
+                        onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block'">
+                    <span id="logo-fallback"
+                        style="display:none; font-weight:800; font-size:20px; color:var(--accent-cyan);">KOCHI
+                        METRO</span>
                 </div>
                 <div class="header-text">
-                    <h1>Live Metro Map</h1>
+                    <h1>Live Metro Map (Schedule Synced)</h1>
                     <div id="status-bar">
                         <span class="status-dot pulse"></span>
                         <span id="network-status">SYSTEM ONLINE</span>
                     </div>
                 </div>
             </div>
-            
+
             <div class="header-right">
                 <div class="digital-clock">
                     <span class="label">CURRENT TIME</span>
@@ -44,8 +51,8 @@
                 <div class="header-controls">
                     <div id="direction-filter-bar">
                         <button class="dir-filter-btn active" data-dir="all">ALL</button>
-                        <button class="dir-filter-btn" data-dir="0">← ALUVA</button>
-                        <button class="dir-filter-btn" data-dir="1">THRIPPUNITHURA →</button>
+                        <button class="dir-filter-btn" data-dir="1">← ALUVA</button>
+                        <button class="dir-filter-btn" data-dir="0">THRIPPUNITHURA →</button>
                     </div>
                     <div class="view-toggle">
                         <button id="toggle-map" class="active">MAP</button>
@@ -79,11 +86,17 @@
                     </div>
                     <div class="ltp-body">
                         <div class="ltp-direction ltp-north">
-                            <div class="ltp-dir-label">← Aluva</div>
+                            <div class="ltp-dir-label">
+                                <span class="ltp-pf-badge ltp-pf-badge--north">PF 1</span>
+                                <span>Aluva</span>
+                            </div>
                             <div id="ltp-dir0" class="ltp-dep-list"></div>
                         </div>
                         <div class="ltp-direction ltp-south">
-                            <div class="ltp-dir-label">Thrippunithura →</div>
+                            <div class="ltp-dir-label">
+                                <span class="ltp-pf-badge ltp-pf-badge--south">PF 2</span>
+                                <span>Thrippunithura</span>
+                            </div>
                             <div id="ltp-dir1" class="ltp-dep-list"></div>
                         </div>
                     </div>
@@ -97,9 +110,13 @@
             <section class="ops-card" id="fare-calculator">
                 <h3><span class="icon">💰</span> Fare Calculator</h3>
                 <div class="input-group">
-                    <select id="origin-select"><option value="">Select Origin</option></select>
+                    <select id="origin-select">
+                        <option value="">Select Origin</option>
+                    </select>
                     <div class="swap-btn" id="swap-btn">⇅</div>
-                    <select id="dest-select"><option value="">Select Destination</option></select>
+                    <select id="dest-select">
+                        <option value="">Select Destination</option>
+                    </select>
                 </div>
                 <div id="fare-result" class="hidden">
                     <div class="fare-value">₹<span id="fare-amt">--</span></div>
@@ -111,18 +128,15 @@
             <section class="ops-card" id="station-hud">
                 <h3 id="hud-station-name">Station HUD</h3>
                 <div class="departure-groups">
-                    <div class="dep-group">
-                        <div class="dep-list" id="dir0-deps"></div>
-                    </div>
-                    <div class="dep-group">
-                        <div class="dep-list" id="dir1-deps"></div>
-                    </div>
+                    <div id="dir1-deps"></div>
+                    <div id="dir0-deps"></div>
                 </div>
             </section>
 
             <!-- External Links -->
             <section class="ops-card" id="external-actions">
-                <a href="https://wa.me/9188957488?text=Hi%2C%20I%20want%20to%20book%20a%20Kochi%20Metro%20ticket" target="_blank" class="book-btn">
+                <a href="https://wa.me/9188957488?text=Hi%2C%20I%20want%20to%20book%20a%20Kochi%20Metro%20ticket"
+                    target="_blank" class="book-btn">
                     <span class="icon">📱</span> BOOK TICKET
                 </a>
                 <p class="small-disclaimer">Official WhatsApp Ticketing Integration</p>
@@ -132,4 +146,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>

@@ -5,22 +5,25 @@
  */
 
 // ─── Direction Config ─────────────────────────────────────────────────────────
-// direction === 0 → Northbound → Aluva  (trip starts at TPHT, ends at ALVA)
-// direction === 1 → Southbound → Tripunithura (trip starts at ALVA, ends at TPHT)
+// Confirmed from GTFS data:
+//   direction === 0 → ALVA(seq1) → TPHT(seq25)  = Southbound → Thrippunithura
+//   direction === 1 → TPHT(seq1) → ALVA(seq25)  = Northbound → Aluva
 const DIR_CONFIG = {
     0: {
-        label:    'Aluva',
-        arrow:    '←',
-        cssClass: 'north',
-        color:    '#00ffd2',   // --accent-cyan
-        glowVar:  'rgba(0,255,210,0.6)'
-    },
-    1: {
         label:    'Thrippunithura',
         arrow:    '→',
         cssClass: 'south',
-        color:    '#a2ff00',   // --accent-lime
-        glowVar:  'rgba(162,255,0,0.6)'
+        color:    '#a2ff00',   // --accent-lime  (Southbound)
+        glowVar:  'rgba(162,255,0,0.6)',
+        platform: 2            // Platform 2 → Thrippunithura
+    },
+    1: {
+        label:    'Aluva',
+        arrow:    '←',
+        cssClass: 'north',
+        color:    '#00ffd2',   // --accent-cyan  (Northbound)
+        glowVar:  'rgba(0,255,210,0.6)',
+        platform: 1            // Platform 1 → Aluva
     }
 };
 
@@ -122,10 +125,11 @@ class MetroBoard {
 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(this.ui.map);
 
-        // Track shapes
+        // Track shapes — R1_0 = Southbound (lime), R1_1 = Northbound (cyan)
         for (const sid in this.data.shapes) {
             const pts = this.data.shapes[sid].map(p => [p.lat, p.lon]);
-            const dir = sid.endsWith('_1') ? 1 : 0;
+            // Shape suffix matches direction_id directly: _0 = dir0, _1 = dir1
+            const dir = sid.endsWith('_0') ? 0 : 1;
             L.polyline(pts, {
                 color: DIR_CONFIG[dir].color,
                 weight: 2,
@@ -194,6 +198,7 @@ class MetroBoard {
 
     /**
      * Show the floating timetable popup in Line View.
+     * Groups departures under Platform 1 (Aluva) and Platform 2 (Thrippunithura).
      */
     showLineViewTimetable(sid) {
         const s = this.data.stations[sid];
@@ -203,25 +208,32 @@ class MetroBoard {
         const fmt  = this._fmtTime.bind(this);
         const now  = this.state.nowSec;
 
-        const renderLtp = (arr) => arr
-            .sort((a, b) => a.time - b.time)
-            .slice(0, 3)
-            .map(d => {
-                const minsAway = Math.max(0, Math.round((d.time - now) / 60));
-                return `<div class="ltp-dep-item">
-                    <span class="dep-time">${fmt(d.time)}</span>
-                    <span class="dep-mins">${minsAway === 0 ? 'Now' : minsAway + 'm'}</span>
-                </div>`;
-            }).join('') || '<div class="ltp-dep-item" style="opacity:0.5">No services</div>';
+        // dir=1 = Aluva = Platform 1  |  dir=0 = Thrippunithura = Platform 2
+        const renderLtp = (arr, dir) => {
+            const cfg = DIR_CONFIG[dir];
+            const rows = arr
+                .sort((a, b) => a.time - b.time)
+                .slice(0, 3)
+                .map(d => {
+                    const minsAway = Math.max(0, Math.round((d.time - now) / 60));
+                    return `<div class="ltp-dep-item">
+                        <span class="dep-time">${fmt(d.time)}</span>
+                        <span class="dep-mins">${minsAway === 0 ? 'Now' : minsAway + 'm'}</span>
+                    </div>`;
+                }).join('');
+            return rows || '<div class="ltp-dep-item ltp-no-service">No services</div>';
+        };
 
-        this.ui.elements.ltpName.textContent  = s.name;
-        this.ui.elements.ltpDir0.innerHTML    = renderLtp(deps[0]);
-        this.ui.elements.ltpDir1.innerHTML    = renderLtp(deps[1]);
+        this.ui.elements.ltpName.textContent = s.name;
+        // ltp-dir0 is in the .ltp-north (Platform 1 / Aluva) slot → direction=1
+        // ltp-dir1 is in the .ltp-south (Platform 2 / Thrippunithura) slot → direction=0
+        this.ui.elements.ltpDir0.innerHTML = renderLtp(deps[1], 1);
+        this.ui.elements.ltpDir1.innerHTML = renderLtp(deps[0], 0);
         this.ui.elements.ltpPopup.classList.remove('hidden');
 
         // Force re-animation
         this.ui.elements.ltpPopup.style.animation = 'none';
-        this.ui.elements.ltpPopup.offsetHeight;   // reflow
+        this.ui.elements.ltpPopup.offsetHeight;
         this.ui.elements.ltpPopup.style.animation = '';
     }
 
@@ -572,22 +584,39 @@ class MetroBoard {
 
         const deps = this._getDepartures(sid);
         const fmt  = this._fmtTime.bind(this);
+        const now  = this.state.nowSec;
 
-        const dirLabel = (dir) => DIR_CONFIG[dir];
-
-        const renderHUD = (arr, dir) => {
-            const cfg = dirLabel(dir);
-            return arr
+        // Render one platform block: platform number, label, color class, departures array
+        const renderPlatform = (arr, dir) => {
+            const cfg = DIR_CONFIG[dir];
+            const rows = arr
                 .sort((a, b) => a.time - b.time)
                 .slice(0, 3)
-                .map(d => `<div class="dep-item">
-                    <span>${cfg.arrow} ${cfg.label}</span>
-                    <span>${fmt(d.time)}</span>
-                </div>`).join('') || '<div class="dep-item">No Services</div>';
+                .map(d => {
+                    const minsAway = Math.max(0, Math.round((d.time - now) / 60));
+                    return `<div class="dep-item dep-item--${cfg.cssClass}">
+                        <span class="dep-dest">${cfg.arrow} ${cfg.label}</span>
+                        <span class="dep-right">
+                            <span class="dep-time-val">${fmt(d.time)}</span>
+                            <span class="dep-mins-badge">${minsAway === 0 ? 'Now' : minsAway + 'm'}</span>
+                        </span>
+                    </div>`;
+                }).join('') || `<div class="dep-item dep-no-service">No upcoming services</div>`;
+
+            return `<div class="platform-block platform--${cfg.cssClass}">
+                <div class="platform-header">
+                    <span class="platform-pill platform-pill--${cfg.cssClass}">PF ${cfg.platform}</span>
+                    <span class="platform-dest">${cfg.label}</span>
+                </div>
+                ${rows}
+            </div>`;
         };
 
-        this.ui.elements.stationHUD.dir0.innerHTML = renderHUD(deps[0], 0);
-        this.ui.elements.stationHUD.dir1.innerHTML = renderHUD(deps[1], 1);
+        // Platform 1 = Aluva (dir=1), Platform 2 = Thrippunithura (dir=0)
+        // dir0-deps always gets Thrippunithura (Platform 2)
+        // dir1-deps always gets Aluva (Platform 1)
+        this.ui.elements.stationHUD.dir1.innerHTML = renderPlatform(deps[1], 1); // Aluva
+        this.ui.elements.stationHUD.dir0.innerHTML = renderPlatform(deps[0], 0); // Thrippunithura
     }
 }
 
