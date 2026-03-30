@@ -1,4 +1,4 @@
-# 🚇 Kochi Metro Geo-Live Operations Display — v2.52
+# 🚇 Kochi Metro Live Metro Map — v2.52
 
 A high-fidelity, data-driven metro visualization system that transforms official GTFS data into a **real-time, geographically accurate transit operations dashboard**.
 
