@@ -92,6 +92,29 @@
                         <div id="train-layer-line"></div>
                     </div>
                 </div>
+                <!-- Desktop-only timetable popup (suppressed on mobile) -->
+                <div id="line-timetable-popup" class="hidden">
+                    <div class="ltp-header">
+                        <span id="ltp-station-name">Station</span>
+                        <button id="ltp-close">✕</button>
+                    </div>
+                    <div class="ltp-body">
+                        <div class="ltp-direction ltp-north">
+                            <div class="ltp-dir-label">
+                                <span class="ltp-pf-badge ltp-pf-badge--north">PF 1</span>
+                                <span>Aluva</span>
+                            </div>
+                            <div id="ltp-dir0" class="ltp-dep-list"></div>
+                        </div>
+                        <div class="ltp-direction ltp-south">
+                            <div class="ltp-dir-label">
+                                <span class="ltp-pf-badge ltp-pf-badge--south">PF 2</span>
+                                <span>Thrippunithura</span>
+                            </div>
+                            <div id="ltp-dir1" class="ltp-dep-list"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
 
