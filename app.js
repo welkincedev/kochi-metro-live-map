@@ -56,7 +56,12 @@ class MetroBoard {
                 ltpName:       document.getElementById('ltp-station-name'),
                 ltpDir0:       document.getElementById('ltp-dir0'),
                 ltpDir1:       document.getElementById('ltp-dir1'),
-                ltpClose:      document.getElementById('ltp-close')
+                ltpClose:      document.getElementById('ltp-close'),
+                locateBtn:     document.getElementById('locate-me-btn'),
+                desktopSearch: document.getElementById('desktop-search'),
+                mobileSearch:  document.getElementById('mobile-search'),
+                desktopRes:    document.getElementById('desktop-search-results'),
+                mobileRes:     document.getElementById('mobile-search-results')
             }
         };
 
@@ -72,10 +77,14 @@ class MetroBoard {
     async init() {
         try {
             console.log('🧩 Initializing Metro Engine v8.0...');
+            this.registerSW();
+            this.setupOnlineOffline();
             await this.loadData();
             this.setServiceContext();
             this.initMap();
             this.setupUI();
+            this.setupGeolocation();
+            this.setupSearch();
             this.initBottomSheet();
             this.setupMobileFareCalc();
             this.startEngine();
@@ -103,6 +112,35 @@ class MetroBoard {
         console.log(`📅 Service: ${this.state.serviceIds.join(',')}`);
     }
 
+    // ─── PWA & System ──────────────────────────────────────────────────────────
+
+    registerSW() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(() => {
+                console.log('✅ Service Worker Registered');
+            }).catch(err => console.error('SW Reg failed:', err));
+        }
+    }
+
+    setupOnlineOffline() {
+        const updateStatus = () => {
+            const statusBox = document.getElementById('network-status');
+            const dot = document.querySelector('.status-dot');
+            if (navigator.onLine) {
+                statusBox.textContent = 'SYSTEM ONLINE';
+                statusBox.classList.remove('offline');
+                dot.classList.remove('offline');
+            } else {
+                statusBox.textContent = 'OFFLINE MODE (CACHE)';
+                statusBox.classList.add('offline');
+                dot.classList.add('offline');
+            }
+        };
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus(); // init
+    }
+
     // ─── Map Init ───────────────────────────────────────────────────────────────
 
     initMap() {
@@ -122,21 +160,29 @@ class MetroBoard {
         for (const sid in this.data.stations) {
             const s = this.data.stations[sid];
             const m = L.circleMarker([s.lat, s.lon], {
-                radius: this.isMobile() ? 8 : 5,
+                radius: this.isMobile() ? 7 : 5,
                 fillColor: 'white', fillOpacity: 0.8,
-                color: 'rgba(255,255,255,0.1)', weight: this.isMobile() ? 14 : 8
+                color: 'rgba(255,255,255,0.1)', weight: this.isMobile() ? 12 : 8
             }).addTo(this.ui.map);
 
             m.on('click', () => {
-                this.state.selectedStation = sid;
-                if (this.isMobile()) {
-                    this.openBottomSheet(sid);
-                } else {
-                    this.updateStationHUD(sid);
-                }
+                this.selectStation(sid);
             });
             this.ui.markers[sid] = m;
         }
+
+        // Show labels at high zoom
+        this.ui.map.on('zoomend', () => {
+            const z = this.ui.map.getZoom();
+            for (const sid in this.ui.markers) {
+                const m = this.ui.markers[sid];
+                if (z >= 14) {
+                    if (!m.getTooltip()) m.bindTooltip(this.data.stations[sid].name, { permanent: true, direction: 'right', className: 'station-tooltip', offset: [5,0] }).openTooltip();
+                } else {
+                    m.unbindTooltip();
+                }
+            }
+        });
 
         this.renderLineView();
     }
@@ -157,28 +203,47 @@ class MetroBoard {
 
         list.querySelectorAll('.line-station').forEach(el => {
             el.addEventListener('click', () => {
-                const sid = el.dataset.sid;
-                this.state.selectedStation = sid;
-                this.highlightLineStation(sid);
-
-                if (this.isMobile()) {
-                    // Mobile: open bottom sheet (suppress old popup)
-                    this.openBottomSheet(sid);
-                } else {
-                    // Desktop: show floating popup + HUD
-                    this.updateStationHUD(sid);
-                    this.showLineViewTimetable(sid);
-                }
+                this.selectStation(el.dataset.sid);
             });
         });
     }
 
+    selectStation(sid) {
+        this.state.selectedStation = sid;
+        this.highlightLineStation(sid);
+
+        // Pre-fill origin in fare calculators
+        if (this.ui.elements.originSelect.querySelector(`option[value="${sid}"]`)) {
+            this.ui.elements.originSelect.value = sid;
+            document.getElementById('bs-origin-select').value = sid;
+        }
+
+        if (this.isMobile()) {
+            this.openBottomSheet(sid);
+        } else {
+            this.updateStationHUD(sid);
+            this.showLineViewTimetable(sid);
+        }
+    }
+
     highlightLineStation(sid) {
+        let targetEl = null;
         document.querySelectorAll('.line-station').forEach(el => {
             const elSid = el.dataset.sid;
-            el.classList.toggle('selected', elSid === sid);
-            el.classList.toggle('dimmed',   elSid !== sid);
+            if (elSid === sid) {
+                el.classList.add('selected');
+                el.classList.remove('dimmed');
+                targetEl = el;
+            } else {
+                el.classList.remove('selected');
+                el.classList.add('dimmed');
+            }
         });
+        
+        // Auto-scroll
+        if (targetEl && document.getElementById('line-view').classList.contains('active')) {
+            targetEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
     }
 
     showLineViewTimetable(sid) {
@@ -262,6 +327,22 @@ class MetroBoard {
 
         // Desktop popup close
         this.ui.elements.ltpClose.addEventListener('click', () => this.hideLineViewTimetable());
+
+        // Swipe gestures for Map ↔ Line toggle
+        let touchStartX = 0;
+        document.getElementById('app-viewport').addEventListener('touchstart', e => {
+            if (e.target.closest('#leaflet-map') || e.target.closest('#board-overflow-container') || e.target.closest('#bs-content')) return;
+            touchStartX = e.touches[0].clientX;
+        }, {passive: true});
+        document.getElementById('app-viewport').addEventListener('touchend', e => {
+            if (e.target.closest('#leaflet-map') || e.target.closest('#board-overflow-container') || e.target.closest('#bs-content')) return;
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (dx > 60) {
+                document.getElementById('toggle-map').click(); // Swipe right -> Map
+            } else if (dx < -60) {
+                document.getElementById('toggle-line').click(); // Swipe left -> Line
+            }
+        }, {passive: true});
     }
 
     swapStations() {
@@ -272,6 +353,93 @@ class MetroBoard {
         btn.classList.add('rotating');
         setTimeout(() => btn.classList.remove('rotating'), 400);
         this.calculateFare();
+    }
+
+    // ─── Search & Geolocation ───────────────────────────────────────────────────
+
+    setupSearch() {
+        const bindSearch = (input, resultsList) => {
+            if (!input || !resultsList) return;
+            
+            const stations = Object.values(this.data.stations);
+            
+            input.addEventListener('input', () => {
+                const val = input.value.toLowerCase().trim();
+                resultsList.innerHTML = '';
+                
+                if (val.length === 0) {
+                    resultsList.classList.add('hidden');
+                    return;
+                }
+
+                const matches = stations.filter(s => s.name.toLowerCase().includes(val)).slice(0, 5);
+                if (matches.length > 0) {
+                    resultsList.classList.remove('hidden');
+                    matches.forEach(s => {
+                        const li = document.createElement('li');
+                        li.textContent = s.name;
+                        li.addEventListener('click', () => {
+                            input.value = '';
+                            resultsList.classList.add('hidden');
+                            this.selectStation(s.id);
+                        });
+                        resultsList.appendChild(li);
+                    });
+                } else {
+                    resultsList.classList.add('hidden');
+                }
+            });
+
+            // Hide on outside click
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !resultsList.contains(e.target)) {
+                    resultsList.classList.add('hidden');
+                }
+            });
+        };
+
+        bindSearch(this.ui.elements.desktopSearch, this.ui.elements.desktopRes);
+        bindSearch(this.ui.elements.mobileSearch, this.ui.elements.mobileRes);
+    }
+
+    setupGeolocation() {
+        if (!this.ui.elements.locateBtn) return;
+        this.ui.elements.locateBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser");
+                return;
+            }
+
+            const btn = this.ui.elements.locateBtn;
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = '⏳ Locating...';
+
+            navigator.geolocation.getCurrentPosition((pos) => {
+                btn.innerHTML = origHTML;
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                let nearest = null;
+                let minDist = Infinity;
+
+                for (const sid in this.data.stations) {
+                    const s = this.data.stations[sid];
+                    // Simple distance check (adequate for small area)
+                    const d = Math.pow(s.lat - lat, 2) + Math.pow(s.lon - lon, 2);
+                    if (d < minDist) {
+                        minDist = d;
+                        nearest = sid;
+                    }
+                }
+
+                if (nearest) {
+                    this.ui.map.flyTo([this.data.stations[nearest].lat, this.data.stations[nearest].lon], 16);
+                    this.selectStation(nearest);
+                }
+            }, () => {
+                btn.innerHTML = origHTML;
+                alert("Location access denied or unavailable.");
+            });
+        });
     }
 
     // ─── Mobile Bottom Sheet ────────────────────────────────────────────────────
@@ -648,7 +816,10 @@ class MetroBoard {
         if (idx1 === -1 || idx2 === -1) return;
         const stationWidth    = this.isMobile() ? 140 : 250;
         const interpolatedIdx = idx1 + (idx2 - idx1) * lineData.ratio;
-        marker.style.left     = `${interpolatedIdx * stationWidth + stationWidth / 2}px`;
+        
+        // CSS expects transform: translate3d. Hardware accelerated.
+        const xPos = (interpolatedIdx * stationWidth + stationWidth / 2) - 45; // 45 is half of 90px marker
+        marker.style.transform = `translate3d(${xPos}px, -13px, 0)`;
         marker.style.opacity  = '1';
     }
 
@@ -681,16 +852,21 @@ class MetroBoard {
 
         const rows = arr
             .sort((a, b) => a.time - b.time).slice(0, 3)
-            .map(d => {
-                const minsAway = Math.max(0, Math.round((d.time - now) / 60));
-                return `<div class="dep-item dep-item--${cfg.cssClass}">
+            .map((d, index) => {
+                let diff = d.time - now;
+                const isNext = index === 0 ? ' next-train' : '';
+                const minsAway = Math.max(0, Math.floor(diff / 60));
+                const secsAway = Math.max(0, Math.floor(diff % 60));
+                const countdown = `${minsAway.toString().padStart(2, '0')}:${secsAway.toString().padStart(2, '0')}`;
+                
+                return `<div class="dep-item dep-item--${cfg.cssClass}${isNext}">
                     <span class="dep-dest">${cfg.arrow} ${cfg.label}</span>
                     <span class="dep-right">
                         <span class="dep-time-val">${fmt(d.time)}</span>
-                        <span class="dep-mins-badge">${minsAway === 0 ? 'Now' : minsAway + 'm'}</span>
+                        <span class="dep-mins-badge">${countdown}</span>
                     </span>
                 </div>`;
-            }).join('') || `<div class="dep-no-service">No upcoming services</div>`;
+            }).join('') || `<div class="dep-item dep-no-service">No upcoming services</div>`;
 
         return `<div class="platform-block platform--${cfg.cssClass}">
             <div class="platform-header">

@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Kochi Metro Live Map — Real-time train positions synced with the official GTFS timetable.">
+    <meta name="theme-color" content="#00ffd2">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png">
     <title>Kochi Metro | Live Operations</title>
 
     <!-- Fonts -->
@@ -68,6 +71,9 @@
             <!-- Geographic Map View -->
             <div id="map-view" class="view-cell active">
                 <div id="leaflet-map"></div>
+                <button id="locate-me-btn" class="floating-btn" aria-label="Find nearest station" title="Nearest Station">
+                    <span class="icon">📍</span> Nearest
+                </button>
             </div>
 
             <!-- Horizontal Line View -->
@@ -107,6 +113,13 @@
 
         <!-- ── Desktop Sidebar (hidden on mobile) ──────────────── -->
         <aside id="operations-panel">
+            <section class="ops-card" id="search-card">
+                <div class="search-container">
+                    <input type="text" id="desktop-search" class="station-search-input" placeholder="Search station..." autocomplete="off">
+                    <ul id="desktop-search-results" class="search-results hidden"></ul>
+                </div>
+            </section>
+
             <section class="ops-card" id="fare-calculator">
                 <h3><span class="icon">💰</span> Fare Calculator</h3>
                 <div class="input-group">
@@ -155,6 +168,14 @@
 
         <!-- Scrollable content -->
         <div id="bs-content">
+
+            <!-- Mobile Search -->
+            <div class="bs-search-section">
+                <div class="search-container">
+                    <input type="text" id="mobile-search" class="station-search-input" placeholder="Search station..." autocomplete="off">
+                    <ul id="mobile-search-results" class="search-results hidden"></ul>
+                </div>
+            </div>
 
             <!-- Station Header -->
             <div id="bs-station-header">

@@ -1,0 +1,24 @@
+{
+  "name": "Kochi Metro Live Operations",
+  "short_name": "Kochi Metro",
+  "description": "Real-time train positioning and departure boards for the Kochi Metro system.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0c10",
+  "theme_color": "#00ffd2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://kochimetro.org/wp-content/themes/kochi-metro/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

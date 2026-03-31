@@ -160,7 +160,7 @@ body {
 .view-cell.active { opacity: 1; pointer-events: auto; }
 
 /* ============================================
-   MAP
+   MAP & GEO CONTROLS
 ============================================ */
 #leaflet-map { width: 100%; height: 100%; background: #0a0c10; }
 .leaflet-container { background: #0a0c10 !important; }
@@ -171,12 +171,31 @@ body {
     background: rgba(10, 12, 16, 0.95) !important;
     border: 1px solid rgba(255,255,255,0.12) !important;
     border-radius: 8px !important; color: white !important;
-    font-family: 'JetBrains Mono', monospace !important;
+    font-family: var(--font-mono) !important;
     font-size: 11px !important; padding: 5px 10px !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
     backdrop-filter: blur(10px) !important;
 }
 .train-tooltip::before { display: none !important; }
+.station-tooltip {
+    background: transparent !important; border: none !important;
+    box-shadow: none !important; color: white !important;
+    font-family: var(--font-main) !important; font-weight: 700 !important;
+    font-size: 12px !important; text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important;
+}
+.station-tooltip::before { display: none !important; }
+
+/* Floating Locate Me */
+#locate-me-btn {
+    position: absolute; bottom: 30px; right: 20px; z-index: 500;
+    background: rgba(10, 12, 16, 0.9); border: 1px solid var(--border-glass);
+    color: white; font-family: var(--font-main); font-size: 11px; font-weight: 700;
+    padding: 10px 16px; border-radius: 20px; cursor: pointer;
+    backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 6px; transition: transform 0.2s, background 0.2s;
+}
+#locate-me-btn:active { transform: scale(0.92); }
+#locate-me-btn:hover { background: rgba(30,36,44,0.9); }
 
 /* ============================================
    OPERATIONS PANEL (DESKTOP SIDEBAR)
@@ -201,6 +220,32 @@ body {
     color: var(--text-secondary);
     text-transform: uppercase; letter-spacing: 1px;
 }
+
+/* Search Container */
+.search-container {
+    position: relative; width: 100%;
+}
+.station-search-input {
+    width: 100%; background: #000; color: white;
+    border: 1px solid var(--border-glass);
+    padding: 12px 14px; border-radius: 12px;
+    font-family: var(--font-main); font-size: 14px; outline: none;
+    transition: border-color 0.3s;
+}
+.station-search-input:focus { border-color: var(--accent-cyan); }
+.search-results {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--bg-card); border: 1px solid var(--border-glass);
+    border-radius: 12px; margin-top: 6px; padding: 6px;
+    list-style: none; max-height: 200px; overflow-y: auto; z-index: 1000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5); backdrop-filter: blur(20px);
+}
+.search-results.hidden { display: none; }
+.search-results li {
+    padding: 10px 12px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border-radius: 8px; transition: background 0.2s;
+}
+.search-results li:hover { background: rgba(255,255,255,0.08); }
 
 /* Fare Calculator */
 .input-group { display: flex; flex-direction: column; gap: 8px; align-items: center; }
@@ -262,6 +307,11 @@ select {
 .dep-item:last-child { border-bottom: none; }
 .dep-item--north { color: var(--accent-cyan); }
 .dep-item--south { color: var(--accent-lime); }
+.dep-item.next-train { background: rgba(255,255,255,0.04); position: relative; overflow: hidden; }
+.dep-item.next-train::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: currentColor; box-shadow: 0 0 10px currentColor;
+}
 .dep-dest { font-weight: 600; }
 .dep-right { display: flex; align-items: center; gap: 6px; }
 .dep-time-val { font-weight: 700; }
@@ -333,10 +383,19 @@ select {
     border-radius: 6px; transform: translate(-45px, -13px);
     display: flex; align-items: center; justify-content: center; gap: 5px;
     font-size: 10px; font-weight: 800; color: black;
-    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100; padding: 0 8px; white-space: nowrap; cursor: default;
     box-shadow: 0 0 15px rgba(255,255,255,0.4);
 }
+.train-marker-line::after {
+    content: ''; position: absolute;
+    top: 50%; width: 40px; height: 4px;
+    transform: translateY(-50%); border-radius: 2px;
+    opacity: 0.5; z-index: -1;
+}
+.train-marker-line.north::after { right: 100%; background: linear-gradient(to left, var(--accent-cyan), transparent); }
+.train-marker-line.south::after { left: 100%; background: linear-gradient(to right, var(--accent-lime), transparent); }
+
 .train-marker-line .train-arrow { font-size: 13px; }
 .train-marker-line .train-dest  { font-size: 9px; letter-spacing: 0.5px; font-weight: 900; }
 .train-marker-line.north { background: var(--accent-cyan); box-shadow: 0 0 18px rgba(0,255,210,0.6), 0 0 40px rgba(0,255,210,0.2); color: #000; }
@@ -469,6 +528,10 @@ select {
     padding: 0 16px 32px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+}
+
+.bs-search-section {
+    position: relative; margin-bottom: 16px; z-index: 20;
 }
 
 #bs-station-header {
@@ -607,4 +670,11 @@ select {
 
     /* Ensure Leaflet controls don't overlap sheet */
     .leaflet-control-zoom { margin-bottom: 80px !important; }
+    
+    /* Locate btn */
+    #locate-me-btn { bottom: 120px; right: 15px; }
 }
+
+/* Offline state */
+#network-status.offline { color: var(--accent-red); }
+.status-dot.offline { background: var(--accent-red); animation: none; }
