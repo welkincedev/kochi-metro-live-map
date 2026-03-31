@@ -1,6 +1,6 @@
 /**
- * Kochi Metro Geo-Live Operations Engine v9.0
- * PWA + Offline Mode + Nearest Station + Smart UX + Search
+ * Kochi Metro Geo-Live Operations Engine v8.0
+ * Mobile-First: Bottom Sheet + Touch Gestures + Responsive HUD
  */
 
 // ─── Direction Config ──────────────────────────────────────────────────────────
@@ -71,42 +71,19 @@ class MetroBoard {
 
     async init() {
         try {
-            this.setupOfflineListeners();
-            console.log('🧩 Initializing Metro Engine v9.0...');
+            console.log('🧩 Initializing Metro Engine v8.0...');
             await this.loadData();
             this.setServiceContext();
             this.initMap();
             this.setupUI();
             this.initBottomSheet();
             this.setupMobileFareCalc();
-            this.setupGeolocation();
-            this.setupSearch();
-            this.setupSwipeGestures();
             this.startEngine();
         } catch (err) {
             console.error('Critical System Failure:', err);
             document.getElementById('network-status').textContent = 'OFFLINE';
             document.getElementById('network-status').className = 'offline';
         }
-    }
-
-    setupOfflineListeners() {
-        const banner = document.getElementById('offline-banner');
-        if(!banner) return;
-        const updateStatus = () => {
-            if(navigator.onLine) {
-                banner.classList.add('hidden');
-                document.getElementById('network-status').textContent = 'SYSTEM ONLINE';
-                document.getElementById('network-status').className = '';
-            } else {
-                banner.classList.remove('hidden');
-                document.getElementById('network-status').textContent = 'OFFLINE';
-                document.getElementById('network-status').className = 'offline';
-            }
-        };
-        window.addEventListener('online', updateStatus);
-        window.addEventListener('offline', updateStatus);
-        updateStatus(); // Initial check
     }
 
     async loadData() {
@@ -124,40 +101,6 @@ class MetroBoard {
         const day = new Date().getDay();
         this.state.serviceIds = (day === 0) ? ['WE'] : ['WK'];
         console.log(`📅 Service: ${this.state.serviceIds.join(',')}`);
-    }
-
-    // ─── Station Selection (Centralized) ────────────────────────────────────────
-
-    selectStation(sid) {
-        this.state.selectedStation = sid;
-        this.highlightLineStation(sid);
-
-        // Pre-fill fare
-        this.ui.elements.originSelect.value = sid;
-        const bsOrig = document.getElementById('bs-origin-select');
-        if (bsOrig) bsOrig.value = sid;
-        this.calculateFare();
-
-        // Auto-scroll line view
-        const sidEl = document.getElementById(`ls-${sid}`);
-        if (sidEl) {
-            const container = document.getElementById('board-overflow-container');
-            if(container) {
-                const offsetLeft = sidEl.offsetLeft;
-                const scrollTarget = offsetLeft - (container.clientWidth / 2) + (sidEl.clientWidth / 2);
-                container.scrollTo({ left: scrollTarget, behavior: 'smooth' });
-            }
-        }
-
-        if (this.isMobile()) {
-            this.openBottomSheet(sid);
-        } else {
-            this.updateStationHUD(sid);
-            const isLineActive = document.getElementById('line-view').classList.contains('active');
-            if (isLineActive) {
-                this.showLineViewTimetable(sid);
-            }
-        }
     }
 
     // ─── Map Init ───────────────────────────────────────────────────────────────
@@ -185,32 +128,17 @@ class MetroBoard {
             }).addTo(this.ui.map);
 
             m.on('click', () => {
-                this.selectStation(sid);
+                this.state.selectedStation = sid;
+                if (this.isMobile()) {
+                    this.openBottomSheet(sid);
+                } else {
+                    this.updateStationHUD(sid);
+                }
             });
             this.ui.markers[sid] = m;
         }
 
-        // Map Zoom Labels
-        this.ui.map.on('zoomend', () => this.toggleMapLabels());
-        this.toggleMapLabels();
-
         this.renderLineView();
-    }
-
-    toggleMapLabels() {
-        const show = this.ui.map.getZoom() >= 14;
-        for(const sid in this.ui.markers) {
-            const m = this.ui.markers[sid];
-            if(show) {
-                if(!m.getTooltip()) {
-                    m.bindTooltip(this.data.stations[sid].name, {
-                        permanent: true, direction: 'bottom', className: 'station-label-tooltip', offset: [0, 8]
-                    }).openTooltip();
-                }
-            } else {
-                if(m.getTooltip()) m.unbindTooltip();
-            }
-        }
     }
 
     // ─── Line View ──────────────────────────────────────────────────────────────
@@ -230,7 +158,17 @@ class MetroBoard {
         list.querySelectorAll('.line-station').forEach(el => {
             el.addEventListener('click', () => {
                 const sid = el.dataset.sid;
-                this.selectStation(sid);
+                this.state.selectedStation = sid;
+                this.highlightLineStation(sid);
+
+                if (this.isMobile()) {
+                    // Mobile: open bottom sheet (suppress old popup)
+                    this.openBottomSheet(sid);
+                } else {
+                    // Desktop: show floating popup + HUD
+                    this.updateStationHUD(sid);
+                    this.showLineViewTimetable(sid);
+                }
             });
         });
     }
@@ -326,144 +264,6 @@ class MetroBoard {
         this.ui.elements.ltpClose.addEventListener('click', () => this.hideLineViewTimetable());
     }
 
-    setupGeolocation() {
-        const btn = document.getElementById('nearest-btn');
-        if(!btn) return;
-        btn.addEventListener('click', () => {
-            if(!navigator.geolocation) {
-                alert('Geolocation not supported by browser.');
-                return;
-            }
-            // Add pulse effect
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⌛';
-            btn.style.opacity = '0.7';
-            
-            navigator.geolocation.getCurrentPosition((pos) => {
-                btn.innerHTML = originalText;
-                btn.style.opacity = '1';
-                const { latitude: lat1, longitude: lon1 } = pos.coords;
-                let minD = Infinity;
-                let nearestSid = null;
-                
-                // Simple Euclidean is fine for short distances
-                for(const sid in this.data.stations) {
-                    const s = this.data.stations[sid];
-                    const d = Math.pow(lat1 - s.lat, 2) + Math.pow(lon1 - s.lon, 2);
-                    if(d < minD) {
-                        minD = d;
-                        nearestSid = sid;
-                    }
-                }
-
-                if(nearestSid) {
-                    this.ui.map.setView([this.data.stations[nearestSid].lat, this.data.stations[nearestSid].lon], 15);
-                    this.selectStation(nearestSid);
-                }
-            }, (err) => {
-                btn.innerHTML = originalText;
-                btn.style.opacity = '1';
-                alert('Could not get location. Make sure permissions are granted.');
-            });
-        });
-    }
-
-    setupSearch() {
-        const searchBtn = document.getElementById('search-btn');
-        const searchInput = document.getElementById('station-search');
-        const resultsList = document.getElementById('search-results');
-
-        if(!searchBtn || !searchInput) return;
-
-        searchBtn.addEventListener('click', () => {
-            searchInput.classList.toggle('expanded');
-            if(searchInput.classList.contains('expanded')) {
-                searchInput.focus();
-            } else {
-                resultsList.classList.add('hidden');
-                searchInput.value = '';
-            }
-        });
-
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            if(!query) {
-                resultsList.classList.add('hidden');
-                return;
-            }
-
-            const matches = Object.values(this.data.stations)
-                .filter(s => s.name.toLowerCase().includes(query))
-                .sort((a,b) => a.name.localeCompare(b.name))
-                .slice(0, 5); // Limit to top 5
-
-            if(matches.length > 0) {
-                resultsList.innerHTML = matches.map(s => `<li data-sid="${s.id}">${s.name}</li>`).join('');
-                resultsList.classList.remove('hidden');
-            } else {
-                resultsList.innerHTML = `<li>No results found</li>`;
-                resultsList.classList.remove('hidden');
-            }
-        });
-
-        resultsList.addEventListener('click', (e) => {
-            if(e.target.tagName === 'LI' && e.target.dataset.sid) {
-                const sid = e.target.dataset.sid;
-                this.selectStation(sid);
-                const s = this.data.stations[sid];
-                if(s) this.ui.map.setView([s.lat, s.lon], 15);
-                
-                // Close search
-                searchInput.classList.remove('expanded');
-                resultsList.classList.add('hidden');
-                searchInput.value = '';
-            }
-        });
-
-        // Close search when clicking on map
-        this.ui.map.on('click', () => {
-            if(searchInput.classList.contains('expanded')){
-                searchInput.classList.remove('expanded');
-                resultsList.classList.add('hidden');
-            }
-        });
-    }
-
-    setupSwipeGestures() {
-        const container = document.getElementById('display-container');
-        if(!container) return;
-
-        let startX = 0, startY = 0;
-        
-        container.addEventListener('touchstart', (e) => {
-            if(e.touches.length > 1) return; // ignore multi-touch
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        }, {passive: true});
-
-        container.addEventListener('touchend', (e) => {
-            if(e.changedTouches.length === 0) return;
-            const endX = e.changedTouches[0].clientX;
-            const endY = e.changedTouches[0].clientY;
-            
-            const dx = endX - startX;
-            const dy = endY - startY;
-
-            // Mostly horizontal swipe and enough distance
-            if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
-                if(dx < 0) {
-                    // Swipe Left -> Show LINE View
-                    const btn = document.getElementById('toggle-line');
-                    if(!btn.classList.contains('active')) btn.click();
-                } else {
-                    // Swipe Right -> Show MAP View
-                    const btn = document.getElementById('toggle-map');
-                    if(!btn.classList.contains('active')) btn.click();
-                }
-            }
-        }, {passive: true});
-    }
-
     swapStations() {
         const s1 = this.ui.elements.originSelect;
         const s2 = this.ui.elements.destSelect;
@@ -505,6 +305,7 @@ class MetroBoard {
     }
 
     openBottomSheet(sid) {
+        this.state.selectedStation = sid;
         this.updateBottomSheetHUD(sid);
         this.setSheetState('default');
     }
@@ -825,14 +626,6 @@ class MetroBoard {
                 fillOpacity: state === 'at-station' ? 0.8 : 1,
                 fillColor:   cfg.color
             });
-            
-            // Add or remove animated trail class
-            const el = t.mapMarker.getElement();
-            if(el) {
-                if(state === 'moving') el.classList.add('moving');
-                else el.classList.remove('moving');
-            }
-
             this.updateLineMarkerPos(tid, lineData);
         }
     }
@@ -888,12 +681,9 @@ class MetroBoard {
 
         const rows = arr
             .sort((a, b) => a.time - b.time).slice(0, 3)
-            .map((d, index) => {
+            .map(d => {
                 const minsAway = Math.max(0, Math.round((d.time - now) / 60));
-                // Optional styling for next departure
-                const isNext = index === 0 && minsAway <= 15 ? 'style="border-left-color: white; opacity: 1;"' : '';
-                
-                return `<div class="dep-item dep-item--${cfg.cssClass}" ${isNext}>
+                return `<div class="dep-item dep-item--${cfg.cssClass}">
                     <span class="dep-dest">${cfg.arrow} ${cfg.label}</span>
                     <span class="dep-right">
                         <span class="dep-time-val">${fmt(d.time)}</span>

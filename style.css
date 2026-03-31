@@ -38,31 +38,6 @@ body {
 }
 
 /* ============================================
-   OFFLINE BANNER
-============================================ */
-#offline-banner {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    background: #ff5252;
-    color: white;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: var(--font-mono);
-    padding: 6px;
-    z-index: 9999;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
-    transform: translateY(-100%);
-    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-}
-#offline-banner:not(.hidden) {
-    transform: translateY(0);
-}
-#offline-banner .icon { font-size: 13px; margin-right: 4px; }
-
-
-/* ============================================
    APP VIEWPORT — DESKTOP GRID
 ============================================ */
 #app-viewport {
@@ -96,68 +71,6 @@ body {
 }
 
 .header-left { display: flex; align-items: center; gap: 20px; }
-.header-right { display: flex; align-items: center; gap: 15px; }
-
-/* Expandable Search */
-#search-container {
-    position: relative;
-    display: flex; align-items: center;
-    justify-content: flex-end;
-}
-#search-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    font-size: 16px;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 50%;
-    transition: background 0.2s;
-    z-index: 2;
-}
-#search-btn:hover { background: rgba(255,255,255,0.1); }
-#station-search {
-    width: 0;
-    padding: 0;
-    border: none;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 20px;
-    color: white;
-    font-family: var(--font-main);
-    font-size: 13px;
-    outline: none;
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-}
-#station-search.expanded {
-    width: 200px;
-    padding: 8px 34px 8px 14px;
-    border: 1px solid var(--accent-cyan);
-    box-shadow: 0 0 10px rgba(0, 255, 210, 0.2);
-    opacity: 1;
-}
-#search-results {
-    position: absolute;
-    top: 100%; right: 0;
-    margin-top: 8px;
-    background: rgba(14, 18, 26, 0.98);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border-glass);
-    border-radius: 12px;
-    list-style: none; padding: 0;
-    width: 200px; max-height: 250px;
-    overflow-y: auto; z-index: 1000;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-#search-results.hidden { display: none; }
-#search-results li {
-    padding: 10px 14px;
-    font-size: 13px; cursor: pointer;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    transition: background 0.2s;
-}
-#search-results li:last-child { border-bottom: none; }
-#search-results li:hover { background: rgba(0, 255, 210, 0.1); color: var(--accent-cyan); }
 
 #metro-logo { height: 38px; filter: drop-shadow(0 0 10px rgba(0,255,210,0.3)); }
 
@@ -253,37 +166,6 @@ body {
 .leaflet-container { background: #0a0c10 !important; }
 .leaflet-bar { border: none !important; box-shadow: 0 0 20px rgba(0,0,0,0.5) !important; }
 .leaflet-bar a { background-color: var(--bg-item) !important; color: white !important; border: 1px solid var(--border-glass) !important; }
-
-/* Leaflet Map Tooltips (Zoom >= 14) */
-.station-label-tooltip {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: white !important;
-    font-family: var(--font-main) !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,1) !important;
-}
-.station-label-tooltip::before { display: none !important; }
-
-/* Floating Action Button (Nearest Station) */
-.fab {
-    position: absolute;
-    bottom: 25px; right: 20px;
-    width: 48px; height: 48px;
-    background: var(--bg-item);
-    border: 1px solid var(--border-glass);
-    border-radius: 50%;
-    color: white;
-    font-size: 20px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    cursor: pointer; z-index: 500; /* above map, below header */
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.2s, background 0.2s;
-}
-.fab:active { transform: scale(0.9); }
-.fab:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-cyan); }
 
 .train-tooltip {
     background: rgba(10, 12, 16, 0.95) !important;
@@ -539,15 +421,6 @@ select {
 }
 .pulse { animation: pulse 2s infinite ease-in-out; }
 
-@keyframes train-trail {
-    0% { box-shadow: 0 0 0 0 var(--glow-color); }
-    70% { box-shadow: 0 0 0 10px rgba(0,255,210,0); }
-    100% { box-shadow: 0 0 0 0 rgba(0,255,210,0); }
-}
-.train-marker.moving {
-    animation: train-trail 2s infinite;
-}
-
 /* ============================================
    MOBILE BOTTOM SHEET
 ============================================ */
@@ -678,13 +551,6 @@ select {
         height: auto;
         grid-column: unset;
     }
-
-    /* Reposition FAB on mobile so it clears bottom sheet if needed */
-    .fab { bottom: 100px; right: 15px; }
-
-    /* Adjust search input for mobile */
-    #station-search.expanded { width: 140px; }
-    #search-results { width: 160px; right: 0; }
 
     .header-left { gap: 10px; }
     #metro-logo { height: 26px; }

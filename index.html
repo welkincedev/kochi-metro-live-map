@@ -3,13 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <meta name="theme-color" content="#0a0c10">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Kochi Metro Live Map — Real-time train positions synced with the official GTFS timetable.">
     <title>Kochi Metro | Live Operations</title>
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,15 +21,11 @@
 
 <body class="dark-theme">
 
-    <div id="offline-banner" class="hidden">
-        <span class="icon">⚠️</span> OFFLINE MODE — USING CACHED DATA
-    </div>
-
     <div id="app-viewport">
 
         <!-- ── Header ─────────────────────────────────────────── -->
         <header id="main-header">
-            <!-- Row 1: Branding + Actions -->
+            <!-- Row 1: Branding + Clock -->
             <div class="header-row header-row--top">
                 <div class="header-left">
                     <div id="logo-container">
@@ -43,20 +35,17 @@
                         <span id="logo-fallback"
                             style="display:none; font-weight:800; font-size:20px; color:var(--accent-cyan);">KOCHI METRO</span>
                     </div>
+                    <div class="header-text">
+                        <h1>Live Metro Map</h1>
+                        <div id="status-bar">
+                            <span class="status-dot pulse"></span>
+                            <span id="network-status">SYSTEM ONLINE</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="header-right">
-                    <!-- Expandable Search -->
-                    <div id="search-container">
-                        <button id="search-btn" aria-label="Search Station">🔍</button>
-                        <input type="text" id="station-search" placeholder="Search station..." autocomplete="off">
-                        <ul id="search-results" class="hidden"></ul>
-                    </div>
-
-                    <div class="digital-clock">
-                        <span class="label">CURRENT TIME</span>
-                        <span id="clock-value">00:00:00</span>
-                    </div>
+                <div class="digital-clock">
+                    <span class="label">CURRENT TIME</span>
+                    <span id="clock-value">00:00:00</span>
                 </div>
             </div>
 
@@ -67,7 +56,6 @@
                     <button class="dir-filter-btn" data-dir="1">← ALUVA</button>
                     <button class="dir-filter-btn" data-dir="0">TPHT →</button>
                 </div>
-                <!-- Swipe Hint / View Toggle -->
                 <div class="view-toggle">
                     <button id="toggle-map" class="active">MAP</button>
                     <button id="toggle-line">LINE</button>
@@ -80,7 +68,6 @@
             <!-- Geographic Map View -->
             <div id="map-view" class="view-cell active">
                 <div id="leaflet-map"></div>
-                <button id="nearest-btn" class="fab" aria-label="Nearest Station">📍</button>
             </div>
 
             <!-- Horizontal Line View -->
@@ -206,16 +193,6 @@
     </div><!-- /#bottom-sheet -->
 
     <script src="app.js"></script>
-    <script>
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js').catch(err => {
-                    console.log('SW Registration failed:', err);
-                });
-            });
-        }
-    </script>
 </body>
 
 </html>
